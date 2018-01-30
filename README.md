@@ -118,6 +118,7 @@ $(function(){
     optionName:Value,
     optionName:Value...
   });
+  form.addValidation();
 });
 ```
 
