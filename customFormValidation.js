@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.0
+ * @version: 1.0.1
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -17,18 +17,31 @@ var customFormValidation = function(op) {
   /** set options or default params */
   this.op = {} ;
 
-  this.op.selector    = op.selector    || '#contactForm' ;
-  this.op.offset      = op.offset      || 0 ;
-  this.op.moveSpeed   = op.moveSpeed   || 500 ;
-  this.op.easing      = op.easing      || 'swing' ;
-  this.op.avoid       = op.avoid       || '.__noValidation' ;
-  this.op.error       = op.error       || 'error_message' ;
-  this.op.disableBtn  = op.disableBtn  || 'btn_disabled' ;
+  this.op.selector     = op.selector     || '#contactForm' ;
+  this.op.offset       = op.offset       || 0 ;
+  this.op.moveSpeed    = op.moveSpeed    || 500 ;
+  this.op.easing       = op.easing       || 'swing' ;
+  this.op.avoid        = op.avoid        || '.__noValidation' ;
+  this.op.disableBtn   = op.disableBtn   || 'btn_disabled' ;
 
-  this.op.msgRequired    = op.msgRequired    || '必須項目です' ;
-  this.op.msgPattern     = op.msgPattern     || '正しく入力してください' ;
-  this.op.msgMailNotSame = op.msgMailNotSame || 'メールアドレスが一致しません' ;
   this.op.strongNotSame  = op.strongNotSame  || true ;
+
+  // ------
+
+  this.op.startError     = op.startError     || false ;
+  this.op.correctMsg     = op.correctMsg     || false ;
+
+  this.op.error          = op.error        || 'error_message' ;
+  this.op.errorElement   = op.errorElement || 'span' ;
+  this.op.correct        = op.correct      || 'correct_message' ;
+  this.op.correctElement = op.correctElement || 'span' ;
+
+  this.op.msgRequiredError      = op.msgRequiredError      || '必須項目です' ;
+  this.op.msgPatternError       = op.msgPatternError       || '正しく入力してください' ;
+  this.op.msgMailNotSameError   = op.msgMailNotSameError   || 'メールアドレスが一致しません' ;
+  this.op.msgRequiredCorrect    = op.msgRequiredCorrect    || '入力済です' ;
+  this.op.msgPatternCorrect     = op.msgPatternCorrect     || '正しく入力されています' ;
+  this.op.msgMailNotSameCorrect = op.msgMailNotSameCorrect || '一致しています' ;
 
 };
 
@@ -100,15 +113,17 @@ customFormValidation.prototype.addValidation = function() {
   $(obj.op.selector).submit({obj:obj},obj.allCheck);
 
   /** btn disabled */
-  obj.allCheck({data:{obj:obj}},false,false);
+  obj.allCheck({data:{obj:obj}},false,obj.startError);
 
 };
 
 customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,allCheck=true)
 {
   var id    = obj.data.target.attr('id');
-  var msg   = obj.data.target.attr('msgPattern') || obj.data.obj.op.msgPattern ;
-  var error = $('<p class="'+obj.data.obj.op.error+' error_pattern-'+id+'" />').append(msg);
+  var msgError   = obj.data.target.attr('msgPatternError') || obj.data.obj.op.msgPatternError ;
+  var error = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_pattern-'+id+'">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
+  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+' correct_pattern-'+id+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var value = obj.data.target.val();
 
   var pattern = obj.data.target.attr('validate-pattern');
@@ -125,8 +140,12 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,al
   }
 
   if (errorView) {
+    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_pattern-'+id).remove();
     if (value.match(regexp)) {
+      if (obj.data.obj.op.correctMsg === true) {
+        obj.data.target.after(correct);
+      }
       return true ;
     }else{
       obj.data.target.after(error);
@@ -143,8 +162,10 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,al
 customFormValidation.prototype.inputTextNotSame = function(obj,errorView=true,allCheck=true)
 {
   var id     = obj.data._target.attr('id');
-  var msg    = obj.data._target.attr('msgMailNotSame') || obj.data.obj.op.msgMailNotSame ;
-  var error  = '<p class="'+obj.data.obj.op.error+' error_notsame-'+id+'">'+msg+'</p>';
+  var msgError    = obj.data._target.attr('msgMailNotSameError') || obj.data.obj.op.msgMailNotSameError ;
+  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_notsame-'+id+'">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
+  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var target = obj.data._sameTarget.val();;
   var value  = obj.data._target.val();
 
@@ -153,9 +174,15 @@ customFormValidation.prototype.inputTextNotSame = function(obj,errorView=true,al
   }
 
   if (errorView) {
+    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
+    obj.data._sameTarget.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data._target.parent().find('.'+obj.data.obj.op.error+'.error_notsame-'+id).remove();
     obj.data._sameTarget.parent().find('.'+obj.data.obj.op.error+'.error_notsame-'+id).remove();
     if (value===target) {
+      if (obj.data.obj.op.correctMsg === true) {
+        obj.data._sameTarget.after(correct);
+        obj.data._target.after(correct);
+      }
       return true ;
     }else{
       obj.data._sameTarget.after(error);
@@ -172,8 +199,10 @@ customFormValidation.prototype.inputTextNotSame = function(obj,errorView=true,al
 
 customFormValidation.prototype.inputTextRequired = function(obj,errorView=true,allCheck=true)
 {
-  var msg   = obj.data.target.attr('msgRequired') || obj.data.obj.op.msgRequired ;
-  var error = $('<p class="'+obj.data.obj.op.error+' error_required" />').append(msg);
+  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
+  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
+  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var value = obj.data.target.val();
 
   if (allCheck) {
@@ -181,11 +210,15 @@ customFormValidation.prototype.inputTextRequired = function(obj,errorView=true,a
   }
 
   if (errorView) {
+    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (!value) {
-      obj.data.target.parent().append(error);
+      obj.data.target.after(error);
       return false ;
     } else {
+      if (obj.data.obj.op.correctMsg === true) {
+        obj.data.target.after(correct);
+      }
       return true ;
     }
   } else if (!value) {
@@ -198,8 +231,10 @@ customFormValidation.prototype.inputTextRequired = function(obj,errorView=true,a
 
 customFormValidation.prototype.inputTelRequired = function(obj,errorView=true,allCheck=true)
 {
-  var msg   = obj.data.target.attr('msgRequired') || obj.data.obj.op.msgRequired ;
-  var error = $('<p class="'+obj.data.obj.op.error+' error_required" />').append(msg);
+  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
+  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
+  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var model = obj.data.target.attr('validate-model');
   var value = true ;
   $('input[validate-model^="'+model+'"]').each(function(){
@@ -213,11 +248,15 @@ customFormValidation.prototype.inputTelRequired = function(obj,errorView=true,al
   }
 
   if (errorView) {
+    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (!value) {
       obj.data.target.parent().append(error);
       return false ;
     } else {
+      if (obj.data.obj.op.correctMsg === true) {
+        obj.data.target.parent().append(correct);
+      }
       return true ;
     }
   } else if (!value) {
@@ -230,8 +269,10 @@ customFormValidation.prototype.inputTelRequired = function(obj,errorView=true,al
 
 customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView=true,allCheck=true)
 {
-  var msg   = obj.data.target.attr('msgRequired') || obj.data.obj.op.msgRequired ;
-  var error = $('<p class="'+obj.data.obj.op.error+' error_email_retype_required" />').append(msg);
+  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
+  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_email_retype_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
+  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var value = obj.data.target.val();
 
   if (allCheck) {
@@ -239,11 +280,15 @@ customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView
   }
 
   if (errorView) {
+    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_email_retype_required').remove();
     if (!value) {
       obj.data.target.after(error);
       return false ;
     } else {
+      if (obj.data.obj.op.correctMsg === true) {
+        obj.data.target.after(correct);
+      }
       return true ;
     }
   } else if (!value) {
@@ -256,8 +301,10 @@ customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView
 
 customFormValidation.prototype.inputEmailRequired = function(obj,errorView=true,allCheck=true)
 {
-  var msg   = obj.data.target.attr('msgRequired') || obj.data.obj.op.msgRequired ;
-  var error = $('<p class="'+obj.data.obj.op.error+' error_required" />').append(msg);
+  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
+  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
+  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var value = obj.data.target.val();
 
   if (allCheck) {
@@ -265,11 +312,15 @@ customFormValidation.prototype.inputEmailRequired = function(obj,errorView=true,
   }
 
   if (errorView) {
+    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (!value) {
       obj.data.target.after(error);
       return false ;
     } else {
+      if (obj.data.obj.op.correctMsg === true) {
+        obj.data.target.after(correct);
+      }
       return true ;
     }
   } else if (!value) {
@@ -282,8 +333,10 @@ customFormValidation.prototype.inputEmailRequired = function(obj,errorView=true,
 
 customFormValidation.prototype.selectBoxRequired = function(obj,errorView=true,allCheck=true)
 {
-  var msg   = obj.data.target.attr('msgRequired') || obj.data.obj.op.msgRequired ;
-  var error = $('<p class="'+obj.data.obj.op.error+' error_required" />').append(msg);
+  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
+  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
+  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var value = obj.data.target.val();
 
   if (allCheck) {
@@ -291,11 +344,15 @@ customFormValidation.prototype.selectBoxRequired = function(obj,errorView=true,a
   }
 
   if (errorView) {
+    obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (!value) {
       obj.data.target.parent().parent().append(error);
       return false ;
     } else {
+      if (obj.data.obj.op.correctMsg === true) {
+        obj.data.target.parent().parent().append(correct);
+      }
       return true ;
     }
   } else if (!value) {
@@ -308,8 +365,10 @@ customFormValidation.prototype.selectBoxRequired = function(obj,errorView=true,a
 
 customFormValidation.prototype.checkBoxRequired = function(obj,errorView=true,allCheck=true)
 {
-  var msg   = obj.data.target.attr('msgRequired') || obj.data.obj.op.msgRequired ;
-  var error = $('<p class="'+obj.data.obj.op.error+' error_required" />').append(msg);
+  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
+  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
+  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var requiredNum = obj.data.target.attr('data-required');
   var model       = obj.data.target.attr('validate-model');
   var num = 0 ;
@@ -324,11 +383,15 @@ customFormValidation.prototype.checkBoxRequired = function(obj,errorView=true,al
   }
 
   if (errorView) {
+    obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (num < requiredNum) {
       obj.data.target.parent().parent().append(error);
       return false ;
     } else {
+      if (obj.data.obj.op.correctMsg === true) {
+        obj.data.target.parent().parent().append(correct);
+      }
       return true ;
     }
   } else if (num < requiredNum) {
@@ -341,9 +404,11 @@ customFormValidation.prototype.checkBoxRequired = function(obj,errorView=true,al
 
 customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCheck=true)
 {
-  var msg   = obj.data.target.attr('msgRequired') || obj.data.obj.op.msgRequired ;
-  var error = $('<p class="'+obj.data.obj.op.error+' error_required" />').append(msg);
-  var model       = obj.data.target.attr('validate-model');
+  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
+  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
+  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
+  var model = obj.data.target.attr('validate-model');
   var num = 0 ;
   $('input[validate-model^="'+model+'"]').each(function(){
     if ($(this).is(':checked')) {
@@ -356,11 +421,15 @@ customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCh
   }
 
   if (errorView) {
+    obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (num < 1) {
       obj.data.target.parent().parent().append(error);
       return false ;
     } else {
+      if (obj.data.obj.op.correctMsg === true) {
+        obj.data.target.parent().parent().append(correct);
+      }
       return true ;
     }
   } else if (num < 1) {
