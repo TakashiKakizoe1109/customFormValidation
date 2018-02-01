@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.1
+ * @version: 1.0.2
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -42,6 +42,8 @@ var customFormValidation = function(op) {
   this.op.msgRequiredCorrect    = op.msgRequiredCorrect    || '入力済です' ;
   this.op.msgPatternCorrect     = op.msgPatternCorrect     || '正しく入力されています' ;
   this.op.msgMailNotSameCorrect = op.msgMailNotSameCorrect || '一致しています' ;
+
+  this.op.submitCallBack        = op.submitCallBack        || '' ;
 
 };
 
@@ -110,7 +112,11 @@ customFormValidation.prototype.addValidation = function() {
   });
 
   /** submit */
-  $(obj.op.selector).submit({obj:obj},obj.allCheck);
+  // $(obj.op.selector).submit({obj:obj},obj.allCheck);
+  $(obj.op.selector).submit({obj:obj},function(){
+    return obj.allCheck({data:{obj:obj}},true,true,true);
+  });
+
 
   /** btn disabled */
   obj.allCheck({data:{obj:obj}},false,obj.startError);
@@ -440,7 +446,7 @@ customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCh
 
 };
 
-customFormValidation.prototype.allCheck = function(e,move=true,errorView=true){
+customFormValidation.prototype.allCheck = function(e,move=true,errorView=true,submit=false){
 
   var move = move ;
   var errorView = errorView ;
@@ -522,6 +528,10 @@ customFormValidation.prototype.allCheck = function(e,move=true,errorView=true){
     $(obj.op.selector).find('input[type^="submit"]').addClass(obj.op.disableBtn);
   } else {
     $(obj.op.selector).find('input[type^="submit"]').removeClass(obj.op.disableBtn);
+    if (this.op.submitCallBack !== '' && submit) {
+      this.op.submitCallBack();
+      return false ;
+    }
   }
   return check ;
 };

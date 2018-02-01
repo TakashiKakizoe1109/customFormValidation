@@ -146,6 +146,7 @@ Options
 | msgRequiredCorrect    | `'入力済です'`                   | default required correct message         |
 | msgPatternCorrect     | `'正しく入力されています'`       | default pattern correct message          |
 | msgMailNotSameCorrect | `'一致しています'`               | default not same correct message         |
+| submitCallBack        | `''`                             | コールバック関数指定[Ajax使用FORMなど](always return false) |
 
 License
 ===========
