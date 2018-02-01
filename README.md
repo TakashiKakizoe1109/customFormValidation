@@ -155,6 +155,22 @@ Options
 | msgMailNotSameCorrect | `'一致しています'`               | default not same correct message         |
 | submitCallBack        | `''`                             | コールバック関数指定【Ajax使用FORMなど】(always return false) |
 
+Updates
+===========
+
+** Version 1.0.3 **  
+** not same bug fix .**
+
+** Version 1.0.2 **  
+** add submitCallBack .**
+
+** Version 1.0.1 **  
+** add startError correctMsg . **
+
+** Version 1.0.0 **  
+** proto **
+
+
 License
 ===========
 

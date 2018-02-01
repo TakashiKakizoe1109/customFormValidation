@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.2
+ * @version: 1.0.3
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -170,7 +170,7 @@ customFormValidation.prototype.inputTextNotSame = function(obj,errorView=true,al
   var id     = obj.data._target.attr('id');
   var msgError    = obj.data._target.attr('msgMailNotSameError') || obj.data.obj.op.msgMailNotSameError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_notsame-'+id+'">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var msgCorrect = obj.data._target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var target = obj.data._sameTarget.val();;
   var value  = obj.data._target.val();
@@ -180,7 +180,7 @@ customFormValidation.prototype.inputTextNotSame = function(obj,errorView=true,al
   }
 
   if (errorView) {
-    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
+    obj.data._target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data._sameTarget.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data._target.parent().find('.'+obj.data.obj.op.error+'.error_notsame-'+id).remove();
     obj.data._sameTarget.parent().find('.'+obj.data.obj.op.error+'.error_notsame-'+id).remove();
