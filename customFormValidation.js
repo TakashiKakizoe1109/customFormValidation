@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.3
+ * @version: 1.0.4
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -119,7 +119,7 @@ customFormValidation.prototype.addValidation = function() {
 
 
   /** btn disabled */
-  obj.allCheck({data:{obj:obj}},false,obj.startError);
+  obj.allCheck({data:{obj:obj}},false,obj.op.startError);
 
 };
 

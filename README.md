@@ -158,11 +158,14 @@ Options
 Updates
 ===========
 
+** Version 1.0.4 **  
+** start error bug fix . **
+
 ** Version 1.0.3 **  
-** not same bug fix .**
+** not same bug fix . **
 
 ** Version 1.0.2 **  
-** add submitCallBack .**
+** add submitCallBack . **
 
 ** Version 1.0.1 **  
 ** add startError correctMsg . **
