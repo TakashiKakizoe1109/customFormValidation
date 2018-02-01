@@ -158,6 +158,9 @@ Options
 Updates
 ===========
 
+** Version 1.0.5 **  
+** strongNotSame bug fix . **
+
 ** Version 1.0.4 **  
 ** start error bug fix . **
 

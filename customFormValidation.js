@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.4
+ * @version: 1.0.5
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -24,16 +24,16 @@ var customFormValidation = function(op) {
   this.op.avoid        = op.avoid        || '.__noValidation' ;
   this.op.disableBtn   = op.disableBtn   || 'btn_disabled' ;
 
-  this.op.strongNotSame  = op.strongNotSame  || true ;
+  this.op.strongNotSame  = op.strongNotSame === false ? false : true ;
 
   // ------
 
   this.op.startError     = op.startError     || false ;
   this.op.correctMsg     = op.correctMsg     || false ;
 
-  this.op.error          = op.error        || 'error_message' ;
-  this.op.errorElement   = op.errorElement || 'span' ;
-  this.op.correct        = op.correct      || 'correct_message' ;
+  this.op.error          = op.error          || 'error_message' ;
+  this.op.errorElement   = op.errorElement   || 'span' ;
+  this.op.correct        = op.correct        || 'correct_message' ;
   this.op.correctElement = op.correctElement || 'span' ;
 
   this.op.msgRequiredError      = op.msgRequiredError      || '必須項目です' ;
