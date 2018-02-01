@@ -27,32 +27,39 @@ javascriptファイルをダウンロードしてください
 
 #### 3-1.validate-model
 
-validate-modelでvalidationの単体を表します、
-関連性のあるものをグルーピングし同じvalidate-modelを付ける場合もあります(checkbox,radio)
+属性validate-modelでvalidationの単体を表します。
+関連性のあるものをグルーピング(checkbox,radio)し同じvalidate-modelを付ける場合もあります。
 
 #### 3-2.required
 
 必須項目の場合は属性`required`もしくは`class="Required"`とします
 
-#### 3-3.required-error-message
+#### 3-3.required-error-message required-correct-message
 
-個別に必須項目入力エラーメッセージを指定する場合は`msgRequiredError="メッセージ"`とします
+個別に必須項目入力メッセージを指定する場合  
+error   : `msgRequiredError="message"`  
+correct : `msgRequiredCorrect="message"`  
 
 #### 3-4.pattern
 
 入力制限がある場合は`validate-pattern="正規表現"`にてパターンを入力します
 
-#### 3-5.pattern-error-message
+#### 3-5.pattern-error-message pattern-correct-message
 
-個別に入力制限エラーメッセージを指定する場合は`msgPatternError="メッセージ"`とします
+個別に入力制限エラーメッセージを指定する場合  
+error   : `msgPatternError="message"`  
+correct : `msgPatternCorrect="message"`  
 
 #### 3-6.not same
 
-Email二重入力チェックなどには`not-same="ID名"`で紐づけて自動チェックを行います
+Email二重入力チェックを指定する場合  
+`not-same="TargetID"`
 
 #### 3-7.not-same-error-message
 
-個別に二重入力チェックエラーメッセージを指定する場合は`msgMailNotSameError="メッセージ"`とします
+個別に二重入力チェックエラーメッセージを指定する場合  
+error   : `msgMailNotSameError="message"`  
+correct : `msgMailNotSameCorrect="message"`  
 
 #### ・EXAMPLE : input text
 
@@ -67,7 +74,7 @@ Email二重入力チェックなどには`not-same="ID名"`で紐づけて自動
 ```
 
 #### ・EXAMPLE : telnumber
-
+validate-model でグルーピング  
 ```
 <input type="tel" id="tel1" name="tel1" validate-model="telGroup-1" value="" maxlength="5" required>
 <input type="tel" id="tel2" name="tel2" validate-model="telGroup-1" value="" maxlength="4" required>
@@ -75,7 +82,8 @@ Email二重入力チェックなどには`not-same="ID名"`で紐づけて自動
 ```
 
 #### ・EXAMPLE : MAIL
-
+validate-pattern で入力制限  
+not-same で二重チェック
 ```
 <input type="email" id="user-email" name="user-email" validate-model="user-email" autocomplete="off" required msgPatternError="メールアドレスが正しくありません" validate-pattern="/^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i" required>
 <input type="email" id="user-email_ck" name="user-email_ck" validate-model="user-email_ck" autocomplete="off" not-same="user-email" required msgPatternError="メールアドレスが正しくありません" validate-pattern="/^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i">
@@ -93,9 +101,8 @@ Email二重入力チェックなどには`not-same="ID名"`で紐づけて自動
 ```
 
 #### ・EXAMPLE : CHECKBOX
-
-複数選択必須の場合はdata-requiredを2以上に設定してください
-
+単選択必須の場合はdata-requiredを1に設定  
+複数選択必須の場合はdata-requiredを2以上に設定  
 ```
 <input type="checkbox" name="status01" id="status01" class="Required" data-required="2" msgRequiredError="2つ以上選択してください" validate-model="checkBoxGroup-1" value="xxxxx" />
 <input type="checkbox" name="status02" id="status02" class="Required" data-required="2" msgRequiredError="2つ以上選択してください" validate-model="checkBoxGroup-1" value="yyyyy" />
@@ -146,7 +153,7 @@ Options
 | msgRequiredCorrect    | `'入力済です'`                   | default required correct message         |
 | msgPatternCorrect     | `'正しく入力されています'`       | default pattern correct message          |
 | msgMailNotSameCorrect | `'一致しています'`               | default not same correct message         |
-| submitCallBack        | `''`                             | コールバック関数指定[Ajax使用FORMなど](always return false) |
+| submitCallBack        | `''`                             | コールバック関数指定【Ajax使用FORMなど】(always return false) |
 
 License
 ===========
