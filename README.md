@@ -158,6 +158,11 @@ Options
 Updates
 ===========
 
+** Version 1.0.6 **  
+** add file required . **  
+** get value update . **
+** any bug fix . **
+
 ** Version 1.0.5 **  
 ** strongNotSame bug fix . **
 

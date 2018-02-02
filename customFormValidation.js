@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.5
+ * @version: 1.0.6
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -25,11 +25,8 @@ var customFormValidation = function(op) {
   this.op.disableBtn   = op.disableBtn   || 'btn_disabled' ;
 
   this.op.strongNotSame  = op.strongNotSame === false ? false : true ;
-
-  // ------
-
-  this.op.startError     = op.startError     || false ;
-  this.op.correctMsg     = op.correctMsg     || false ;
+  this.op.startError     = op.startError  === true ? true : false ;
+  this.op.correctMsg     = op.correctMsg  === true ? true : false ;
 
   this.op.error          = op.error          || 'error_message' ;
   this.op.errorElement   = op.errorElement   || 'span' ;
@@ -53,7 +50,7 @@ customFormValidation.prototype.addValidation = function() {
   var target = '' ;
 
   /** elements search */
-  $(obj.op.selector).find('select,input,textarea').not('.__noValidation').not('input[type^="submit"]').each(function(index, element){
+  $(obj.op.selector).find('select,input,textarea').not(obj.op.avoid).not('input[type^="submit"]').each(function(index, element){
 
     /** target element */
     var
@@ -89,6 +86,8 @@ customFormValidation.prototype.addValidation = function() {
         _t.on('change',{obj:obj,target:target},obj.checkBoxRequired);
       } else if ( (htmlTag=='input'&&type=='radio') && _t.parent().is(':visible') ) {
         _t.on('change',{obj:obj,target:target},obj.radioRequired);
+      } else if ( (htmlTag=='input'&&type=='file') && _t.parent().is(':visible') ) {
+        _t.on('change',{obj:obj,target:target},obj.fileRequired);
       }
     }
 
@@ -125,21 +124,28 @@ customFormValidation.prototype.addValidation = function() {
 
 customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,allCheck=true)
 {
+  /**  */
   var id    = obj.data.target.attr('id');
   var msgError   = obj.data.target.attr('msgPatternError') || obj.data.obj.op.msgPatternError ;
   var error = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_pattern-'+id+'">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
   var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+' correct_pattern-'+id+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var value = obj.data.target.val();
+  var value = $.trim(obj.data.target.val());
+  var model = obj.data.target.attr('validate-model');
 
+  /**  */
   var pattern = obj.data.target.attr('validate-pattern');
   pattern = pattern.split('/');
   var regex = '' ;
   var flags = pattern[pattern.length-1];
-  for (var i = 1; i < pattern.length - 1; i++) {
+  var regex_length = pattern.length - 1 ;
+  for (var i = 1; i < regex_length; i++) {
     regex += pattern[i] ;
   }
   var regexp = new RegExp(regex,flags);
+
+  /** error place */
+  var multi = !!($('input[validate-model="'+model+'"]').length - 1) ;
 
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
@@ -150,11 +156,19 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,al
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_pattern-'+id).remove();
     if (value.match(regexp)) {
       if (obj.data.obj.op.correctMsg === true) {
-        obj.data.target.after(correct);
+        if (multi) {
+          obj.data.target.parent().append(correct);
+        } else {
+          obj.data.target.after(correct);
+        }
       }
       return true ;
     }else{
-      obj.data.target.after(error);
+      if (multi) {
+        obj.data.target.parent().append(error);
+      } else {
+        obj.data.target.after(error);
+      }
       return false ;
     }
   } else if (value.match(regexp)) {
@@ -170,16 +184,16 @@ customFormValidation.prototype.inputTextNotSame = function(obj,errorView=true,al
   var id     = obj.data._target.attr('id');
   var msgError    = obj.data._target.attr('msgMailNotSameError') || obj.data.obj.op.msgMailNotSameError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_notsame-'+id+'">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data._target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var msgCorrect = obj.data._target.attr('msgMailNotSameCorrect') || obj.data.obj.op.msgMailNotSameCorrect ;
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var target = obj.data._sameTarget.val();;
-  var value  = obj.data._target.val();
+  var target = $.trim(obj.data._sameTarget.val());
+  var value  = $.trim(obj.data._target.val());
 
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView) {
+  if (errorView && (value!=''||target!='')) {
     obj.data._target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data._sameTarget.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data._target.parent().find('.'+obj.data.obj.op.error+'.error_notsame-'+id).remove();
@@ -207,9 +221,9 @@ customFormValidation.prototype.inputTextRequired = function(obj,errorView=true,a
 {
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var value = obj.data.target.val();
+  var value = $.trim(obj.data.target.val());
 
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
@@ -239,7 +253,7 @@ customFormValidation.prototype.inputTelRequired = function(obj,errorView=true,al
 {
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var model = obj.data.target.attr('validate-model');
   var value = true ;
@@ -277,9 +291,9 @@ customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView
 {
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_email_retype_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var value = obj.data.target.val();
+  var value = $.trim(obj.data.target.val());
 
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
@@ -309,9 +323,9 @@ customFormValidation.prototype.inputEmailRequired = function(obj,errorView=true,
 {
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var value = obj.data.target.val();
+  var value = $.trim(obj.data.target.val());
 
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
@@ -341,9 +355,9 @@ customFormValidation.prototype.selectBoxRequired = function(obj,errorView=true,a
 {
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var value = obj.data.target.val();
+  var value = $.trim(obj.data.target.val())
 
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
@@ -373,7 +387,7 @@ customFormValidation.prototype.checkBoxRequired = function(obj,errorView=true,al
 {
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var requiredNum = obj.data.target.attr('data-required');
   var model       = obj.data.target.attr('validate-model');
@@ -412,7 +426,7 @@ customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCh
 {
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
+  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var model = obj.data.target.attr('validate-model');
   var num = 0 ;
@@ -446,6 +460,39 @@ customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCh
 
 };
 
+customFormValidation.prototype.fileRequired = function(obj,errorView=true,allCheck=true)
+{
+  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
+  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
+  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
+  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
+  var model = obj.data.target.attr('validate-model');
+  var file = !obj.data.target[0].files[0] ;
+
+  if (allCheck) {
+    obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
+  }
+
+  if (errorView) {
+    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
+    obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
+    if (file) {
+      obj.data.target.parent().append(error);
+      return false ;
+    } else {
+      if (obj.data.obj.op.correctMsg === true) {
+        obj.data.target.parent().append(correct);
+      }
+      return true ;
+    }
+  } else if (file) {
+    return false ;
+  } else {
+    return true ;
+  }
+
+};
+
 customFormValidation.prototype.allCheck = function(e,move=true,errorView=true,submit=false){
 
   var move = move ;
@@ -455,7 +502,7 @@ customFormValidation.prototype.allCheck = function(e,move=true,errorView=true,su
   var check = true ;
   var moveTarget = '' ;
 
-  $(obj.op.selector).find('select,input,textarea').not('.__noValidation').not('input[type^="submit"]').each(function(index, element){
+  $(obj.op.selector).find('select,input,textarea').not(obj.op.avoid).not('input[type^="submit"]').each(function(index, element){
 
     var singleCheck = true ;
 
@@ -489,6 +536,8 @@ customFormValidation.prototype.allCheck = function(e,move=true,errorView=true,su
       } else if ( (htmlTag=='input'&&type=='radio') && _t.parent().is(':visible') ) {
         targetTop = _t.parent();
         singleCheck = obj.radioRequired({data:{obj:obj,target:target}},errorView,false);
+      } else if ( (htmlTag=='input'&&type=='file') && _t.parent().is(':visible') ) {
+        singleCheck = obj.fileRequired({data:{obj:obj,target:target}},errorView,false);
       }
 
     }
