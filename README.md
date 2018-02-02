@@ -158,6 +158,9 @@ Options
 Updates
 ===========
 
+** Version 1.0.8 **  
+** add class mode . **
+
 ** Version 1.0.7 **  
 ** add pattern match . **
 

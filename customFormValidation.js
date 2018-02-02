@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.7
+ * @version: 1.0.8
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -39,6 +39,14 @@ var customFormValidation = function(op) {
   this.op.msgRequiredCorrect    = op.msgRequiredCorrect    || '入力済です' ;
   this.op.msgPatternCorrect     = op.msgPatternCorrect     || '正しく入力されています' ;
   this.op.msgMailNotSameCorrect = op.msgMailNotSameCorrect || '一致しています' ;
+
+  this.op.addClassMode                = op.addClassMode === true ? true : false  ;
+  this.op.classNameRequiredError      = op.classNameRequiredError      = '__RequiredError' ;
+  this.op.classNamePatternError       = op.classNamePatternError       = '__PatternError' ;
+  this.op.classNameMailNotSameError   = op.classNameMailNotSameError   = '__MailNotSameError' ;
+  this.op.classNameRequiredCorrect    = op.classNameRequiredCorrect    = '__RequiredCorrect' ;
+  this.op.classNamePatternCorrect     = op.classNamePatternCorrect     = '__PatternCorrect' ;
+  this.op.classNameMailNotSameCorrect = op.classNameMailNotSameCorrect = '__MailNotSameCorrect' ;
 
   this.op.submitCallBack        = op.submitCallBack        || '' ;
 
@@ -186,6 +194,10 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,al
     obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_pattern-'+id).remove();
     if (match) {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNamePatternError);
+        obj.data.target.addClass(obj.data.obj.op.classNamePatternCorrect);
+      }
       if (obj.data.obj.op.correctMsg === true) {
         if (multi) {
           obj.data.target.parent().append(correct);
@@ -194,7 +206,11 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,al
         }
       }
       return true ;
-    }else{
+    } else {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNamePatternCorrect);
+        obj.data.target.addClass(obj.data.obj.op.classNamePatternError);
+      }
       if (multi) {
         obj.data.target.parent().append(error);
       } else {
@@ -202,10 +218,12 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,al
       }
       return false ;
     }
-  } else if (match) {
-    return true ;
   } else {
-    return false ;
+    if (match) {
+      return true ;
+    } else {
+      return false ;
+    }
   }
 
 };
@@ -230,20 +248,34 @@ customFormValidation.prototype.inputTextNotSame = function(obj,errorView=true,al
     obj.data._target.parent().find('.'+obj.data.obj.op.error+'.error_notsame-'+id).remove();
     obj.data._sameTarget.parent().find('.'+obj.data.obj.op.error+'.error_notsame-'+id).remove();
     if (value===target) {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data._sameTarget.removeClass(obj.data.obj.op.classNameMailNotSameError);
+        obj.data._sameTarget.addClass(obj.data.obj.op.classNameMailNotSameCorrect);
+        obj.data._target.removeClass(obj.data.obj.op.classNameMailNotSameError);
+        obj.data._target.addClass(obj.data.obj.op.classNameMailNotSameCorrect);
+      }
       if (obj.data.obj.op.correctMsg === true) {
         obj.data._sameTarget.after(correct);
         obj.data._target.after(correct);
       }
       return true ;
     }else{
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data._sameTarget.removeClass(obj.data.obj.op.classNameMailNotSameCorrect);
+        obj.data._sameTarget.addClass(obj.data.obj.op.classNameMailNotSameError);
+        obj.data._target.removeClass(obj.data.obj.op.classNameMailNotSameCorrect);
+        obj.data._target.addClass(obj.data.obj.op.classNameMailNotSameError);
+      }
       obj.data._sameTarget.after(error);
       obj.data._target.after(error);
       return false ;
     }
-  } else if (value===target) {
-    return true ;
-  } else{
-    return false ;
+  } else {
+    if (value===target) {
+      return true ;
+    } else{
+      return false ;
+    }
   }
 
 };
@@ -264,18 +296,28 @@ customFormValidation.prototype.inputTextRequired = function(obj,errorView=true,a
     obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (!value) {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
+      }
       obj.data.target.after(error);
       return false ;
     } else {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
+      }
       if (obj.data.obj.op.correctMsg === true) {
         obj.data.target.after(correct);
       }
       return true ;
     }
-  } else if (!value) {
-    return false ;
   } else {
-    return true ;
+    if (!value) {
+      return false ;
+    } else {
+      return true ;
+    }
   }
 
 };
@@ -302,18 +344,28 @@ customFormValidation.prototype.inputTelRequired = function(obj,errorView=true,al
     obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (!value) {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
+      }
       obj.data.target.parent().append(error);
       return false ;
     } else {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
+      }
       if (obj.data.obj.op.correctMsg === true) {
         obj.data.target.parent().append(correct);
       }
       return true ;
     }
-  } else if (!value) {
-    return false ;
   } else {
-    return true ;
+    if (!value) {
+      return false ;
+    } else {
+      return true ;
+    }
   }
 
 };
@@ -334,18 +386,28 @@ customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView
     obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_email_retype_required').remove();
     if (!value) {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
+      }
       obj.data.target.after(error);
       return false ;
     } else {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
+      }
       if (obj.data.obj.op.correctMsg === true) {
         obj.data.target.after(correct);
       }
       return true ;
     }
-  } else if (!value) {
-    return false ;
   } else {
-    return true ;
+    if (!value) {
+      return false ;
+    } else {
+      return true ;
+    }
   }
 
 };
@@ -366,18 +428,28 @@ customFormValidation.prototype.inputEmailRequired = function(obj,errorView=true,
     obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (!value) {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
+      }
       obj.data.target.after(error);
       return false ;
     } else {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
+      }
       if (obj.data.obj.op.correctMsg === true) {
         obj.data.target.after(correct);
       }
       return true ;
     }
-  } else if (!value) {
-    return false ;
   } else {
-    return true ;
+    if (!value) {
+      return false ;
+    } else {
+      return true ;
+    }
   }
 
 };
@@ -398,18 +470,28 @@ customFormValidation.prototype.selectBoxRequired = function(obj,errorView=true,a
     obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (!value) {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
+      }
       obj.data.target.parent().parent().append(error);
       return false ;
     } else {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
+      }
       if (obj.data.obj.op.correctMsg === true) {
         obj.data.target.parent().parent().append(correct);
       }
       return true ;
     }
-  } else if (!value) {
-    return false ;
   } else {
-    return true ;
+    if (!value) {
+      return false ;
+    } else {
+      return true ;
+    }
   }
 
 };
@@ -437,18 +519,28 @@ customFormValidation.prototype.checkBoxRequired = function(obj,errorView=true,al
     obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (num < requiredNum) {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
+      }
       obj.data.target.parent().parent().append(error);
       return false ;
     } else {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
+      }
       if (obj.data.obj.op.correctMsg === true) {
         obj.data.target.parent().parent().append(correct);
       }
       return true ;
     }
-  } else if (num < requiredNum) {
-    return false ;
   } else {
-    return true ;
+    if (num < requiredNum) {
+      return false ;
+    } else {
+      return true ;
+    }
   }
 
 };
@@ -475,18 +567,28 @@ customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCh
     obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (num < 1) {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
+      }
       obj.data.target.parent().parent().append(error);
       return false ;
     } else {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
+      }
       if (obj.data.obj.op.correctMsg === true) {
         obj.data.target.parent().parent().append(correct);
       }
       return true ;
     }
-  } else if (num < 1) {
-    return false ;
   } else {
-    return true ;
+    if (num < 1) {
+      return false ;
+    } else {
+      return true ;
+    }
   }
 
 };
@@ -508,18 +610,28 @@ customFormValidation.prototype.fileRequired = function(obj,errorView=true,allChe
     obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
     if (file) {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
+      }
       obj.data.target.parent().append(error);
       return false ;
     } else {
+      if (obj.data.obj.op.addClassMode === true) {
+        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
+        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
+      }
       if (obj.data.obj.op.correctMsg === true) {
         obj.data.target.parent().append(correct);
       }
       return true ;
     }
-  } else if (file) {
-    return false ;
   } else {
-    return true ;
+    if (file) {
+      return false ;
+    } else {
+      return true ;
+    }
   }
 
 };
