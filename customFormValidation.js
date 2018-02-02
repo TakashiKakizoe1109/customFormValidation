@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.6
+ * @version: 1.0.7
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -24,9 +24,9 @@ var customFormValidation = function(op) {
   this.op.avoid        = op.avoid        || '.__noValidation' ;
   this.op.disableBtn   = op.disableBtn   || 'btn_disabled' ;
 
-  this.op.strongNotSame  = op.strongNotSame === false ? false : true ;
-  this.op.startError     = op.startError  === true ? true : false ;
-  this.op.correctMsg     = op.correctMsg  === true ? true : false ;
+  this.op.strongNotSame  = op.strongNotSame === false ? false : true  ;
+  this.op.startError     = op.startError    === true  ? true  : false ;
+  this.op.correctMsg     = op.correctMsg    === true  ? true  : false ;
 
   this.op.error          = op.error          || 'error_message' ;
   this.op.errorElement   = op.errorElement   || 'span' ;
@@ -133,16 +133,47 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,al
   var value = $.trim(obj.data.target.val());
   var model = obj.data.target.attr('validate-model');
 
-  /**  */
+  /** match */
+  var match = false ;
   var pattern = obj.data.target.attr('validate-pattern');
-  pattern = pattern.split('/');
-  var regex = '' ;
-  var flags = pattern[pattern.length-1];
-  var regex_length = pattern.length - 1 ;
-  for (var i = 1; i < regex_length; i++) {
-    regex += pattern[i] ;
+  var checkVal = value ;
+  var checkRegEx = '' ;
+
+  if (pattern === 'yyyymmdd' ) {
+    if (value.length === 8) {
+      checkVal = value.substr(0,4) + '-' + value.substr(4,2) + '-' + value.substr(6,2) ;
+      checkRegEx = /^\d{4}-\d{2}-\d{2}$/;
+      if(checkVal.match(checkRegEx)){
+        var d = new Date(checkVal);
+        if(d.getTime() || d.getTime() === 0){
+          match = true ;
+        }
+      }
+    }
+  } else if (pattern === 'yyyy-mm-dd') {
+    checkRegEx = /^\d{4}-\d{2}-\d{2}$/;
+    if(checkVal.match(checkRegEx)){
+      var d = new Date(checkVal);
+      if(d.getTime() || d.getTime() === 0){
+        match = true ;
+      }
+    }
+  } else if (pattern === 'email') {
+    checkRegEx = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
+    if(checkVal.match(checkRegEx)){
+      match = true ;
+    }
+  } else {
+    pattern = pattern.split('/');
+    var regex = '' ;
+    var flags = pattern[pattern.length-1];
+    var regex_length = pattern.length - 1 ;
+    for (var i = 1; i < regex_length; i++) {
+      regex += pattern[i] ;
+    }
+    var regexp = new RegExp(regex,flags);
+    match = value.match(regexp) ;
   }
-  var regexp = new RegExp(regex,flags);
 
   /** error place */
   var multi = !!($('input[validate-model="'+model+'"]').length - 1) ;
@@ -154,7 +185,7 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,al
   if (errorView) {
     obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
     obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_pattern-'+id).remove();
-    if (value.match(regexp)) {
+    if (match) {
       if (obj.data.obj.op.correctMsg === true) {
         if (multi) {
           obj.data.target.parent().append(correct);
@@ -171,7 +202,7 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,al
       }
       return false ;
     }
-  } else if (value.match(regexp)) {
+  } else if (match) {
     return true ;
   } else {
     return false ;
