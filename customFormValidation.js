@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.9
+ * @version: 1.0.10
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -123,8 +123,12 @@ customFormValidation.prototype.addValidation = function() {
       if (!!sync) {
         if ( ((htmlTag=='textarea') || (htmlTag=='input'&&type=='text') || ( htmlTag=='input' && type=='email' ) || ( htmlTag=='input' && type=='tel' )) && _t.is(':visible') ) {
           _t.on('keyup blur',{obj:obj,target:target},obj.syncValueText);
-        } else if ( ((htmlTag=='select') || (htmlTag=='input'&&type=='checkbox') || (htmlTag=='input'&&type=='radio')) && _t.is(':visible') ) {
-          _t.on('change blur',{obj:obj,target:target},obj.syncValueOther);
+        } else if ( (htmlTag=='select') && _t.is(':visible') ) {
+          _t.on('change blur',{obj:obj,target:target},obj.syncValueSelect);
+        } else if ( (htmlTag=='input'&&type=='radio') && _t.is(':visible') ) {
+          _t.on('change blur',{obj:obj,target:target},obj.syncValueRadio);
+        } else if ( (htmlTag=='input'&&type=='checkbox') && _t.is(':visible') ) {
+          _t.on('change blur',{obj:obj,target:target},obj.syncValueCheckBox);
         }
       }
     }
@@ -153,10 +157,42 @@ customFormValidation.prototype.syncValueText = function(obj,errorView=true,allCh
   }
 }
 
-customFormValidation.prototype.syncValueOther = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.syncValueSelect = function(obj,errorView=true,allCheck=true)
 {
   var sync  = obj.data.target.attr('syncValue');
   var value = $.trim(obj.data.target.val());
+  sync = $(sync);
+  if (sync.length) {
+    sync.val(value);
+  }
+}
+
+customFormValidation.prototype.syncValueRadio = function(obj,errorView=true,allCheck=true)
+{
+  var sync  = obj.data.target.attr('syncValue');
+  var model = obj.data.target.attr('validate-model');
+  var value = '' ;
+  $('input[validate-model^="'+model+'"]').each(function(){
+    if ($(this).is(':checked')) {
+      value = $.trim($(this).val());
+    }
+  });
+  sync = $(sync);
+  if (sync.length) {
+    sync.val(value);
+  }
+}
+
+customFormValidation.prototype.syncValueCheckBox = function(obj,errorView=true,allCheck=true)
+{
+  var sync  = obj.data.target.attr('syncValue');
+  var model = obj.data.target.attr('validate-model');
+  var value = '' ;
+  $('input[validate-model^="'+model+'"]').each(function(){
+    if ($(this).is(':checked')) {
+      value += $.trim($(this).val()) + ',';
+    }
+  });
   sync = $(sync);
   if (sync.length) {
     sync.val(value);
