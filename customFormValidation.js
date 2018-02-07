@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.8
+ * @version: 1.0.9
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -25,6 +25,7 @@ var customFormValidation = function(op) {
   this.op.disableBtn   = op.disableBtn   || 'btn_disabled' ;
 
   this.op.strongNotSame  = op.strongNotSame === false ? false : true  ;
+  this.op.syncValue      = op.syncValue     === true  ? true  : false ;
   this.op.startError     = op.startError    === true  ? true  : false ;
   this.op.correctMsg     = op.correctMsg    === true  ? true  : false ;
 
@@ -116,6 +117,18 @@ customFormValidation.prototype.addValidation = function() {
       }
     }
 
+    /** sync value */
+    if (obj.op.syncValue) {
+      var sync = _t.attr('syncValue');
+      if (!!sync) {
+        if ( ((htmlTag=='textarea') || (htmlTag=='input'&&type=='text') || ( htmlTag=='input' && type=='email' ) || ( htmlTag=='input' && type=='tel' )) && _t.is(':visible') ) {
+          _t.on('keyup blur',{obj:obj,target:target},obj.syncValueText);
+        } else if ( ((htmlTag=='select') || (htmlTag=='input'&&type=='checkbox') || (htmlTag=='input'&&type=='radio')) && _t.is(':visible') ) {
+          _t.on('change blur',{obj:obj,target:target},obj.syncValueOther);
+        }
+      }
+    }
+
   });
 
   /** submit */
@@ -129,6 +142,20 @@ customFormValidation.prototype.addValidation = function() {
   obj.allCheck({data:{obj:obj}},false,obj.op.startError);
 
 };
+
+customFormValidation.prototype.syncValueText = function(obj,errorView=true,allCheck=true)
+{
+  var sync  = obj.data.target.attr('syncValue');
+  var value = $.trim(obj.data.target.val());
+  $(sync).val(value);
+}
+
+customFormValidation.prototype.syncValueOther = function(obj,errorView=true,allCheck=true)
+{
+  var sync  = obj.data.target.attr('syncValue');
+  var value = $.trim(obj.data.target.val());
+  $(sync).val(value);
+}
 
 customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,allCheck=true)
 {
