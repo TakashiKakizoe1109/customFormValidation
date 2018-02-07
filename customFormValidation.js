@@ -147,14 +147,20 @@ customFormValidation.prototype.syncValueText = function(obj,errorView=true,allCh
 {
   var sync  = obj.data.target.attr('syncValue');
   var value = $.trim(obj.data.target.val());
-  $(sync).val(value);
+  sync = $(sync);
+  if (sync.length) {
+    sync.val(value);
+  }
 }
 
 customFormValidation.prototype.syncValueOther = function(obj,errorView=true,allCheck=true)
 {
   var sync  = obj.data.target.attr('syncValue');
   var value = $.trim(obj.data.target.val());
-  $(sync).val(value);
+  sync = $(sync);
+  if (sync.length) {
+    sync.val(value);
+  }
 }
 
 customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,allCheck=true)
