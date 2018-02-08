@@ -159,6 +159,9 @@ Options
 Updates
 ===========
 
+** Version 1.0.11 **  
+** add sync html . **
+
 ** Version 1.0.10 **  
 ** add sync bug fix . **
 

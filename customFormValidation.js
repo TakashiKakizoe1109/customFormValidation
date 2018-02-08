@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.10
+ * @version: 1.0.11
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -26,6 +26,7 @@ var customFormValidation = function(op) {
 
   this.op.strongNotSame  = op.strongNotSame === false ? false : true  ;
   this.op.syncValue      = op.syncValue     === true  ? true  : false ;
+  this.op.syncHtml       = op.syncHtml      === true  ? true  : false ;
   this.op.startError     = op.startError    === true  ? true  : false ;
   this.op.correctMsg     = op.correctMsg    === true  ? true  : false ;
 
@@ -119,8 +120,9 @@ customFormValidation.prototype.addValidation = function() {
 
     /** sync value */
     if (obj.op.syncValue) {
-      var sync = _t.attr('syncValue');
-      if (!!sync) {
+      var syncValue = _t.attr('syncValue');
+      var syncHtml  = _t.attr('syncHtml');
+      if (!!syncValue || !!syncHtml) {
         if ( ((htmlTag=='textarea') || (htmlTag=='input'&&type=='text') || ( htmlTag=='input' && type=='email' ) || ( htmlTag=='input' && type=='tel' )) && _t.is(':visible') ) {
           _t.on('keyup blur',{obj:obj,target:target},obj.syncValueText);
         } else if ( (htmlTag=='select') && _t.is(':visible') ) {
@@ -149,53 +151,76 @@ customFormValidation.prototype.addValidation = function() {
 
 customFormValidation.prototype.syncValueText = function(obj,errorView=true,allCheck=true)
 {
-  var sync  = obj.data.target.attr('syncValue');
+  var syncValue = obj.data.target.attr('syncValue');
   var value = $.trim(obj.data.target.val());
-  sync = $(sync);
-  if (sync.length) {
-    sync.val(value);
+  syncValue = $(syncValue);
+  if (syncValue.length) {
+    syncValue.val(value);
+  }
+
+  var syncHtml  = obj.data.target.attr('syncHtml');
+  var valueHTML = obj.data.target.attr('syncHtmlValue') || value ;
+  syncHtml  = $(syncHtml);
+  if (syncHtml.length && obj.data.obj.op.syncHtml) {
+    syncHtml.html(valueHTML);
   }
 }
 
 customFormValidation.prototype.syncValueSelect = function(obj,errorView=true,allCheck=true)
 {
-  var sync  = obj.data.target.attr('syncValue');
+  var syncValue = obj.data.target.attr('syncValue');
   var value = $.trim(obj.data.target.val());
-  sync = $(sync);
-  if (sync.length) {
-    sync.val(value);
+  syncValue = $(syncValue);
+  if (syncValue.length) {
+    syncValue.val(value);
+  }
+
+  var syncHtml  = obj.data.target.attr('syncHtml');
+  var valueHTML = obj.data.target.attr('syncHtmlValue') || value ;
+  syncHtml  = $(syncHtml);
+  if (syncHtml.length && obj.data.obj.op.syncHtml) {
+    syncHtml.html(valueHTML);
   }
 }
 
 customFormValidation.prototype.syncValueRadio = function(obj,errorView=true,allCheck=true)
 {
-  var sync  = obj.data.target.attr('syncValue');
+  var syncValue  = obj.data.target.attr('syncValue');
+  var syncHtml  = obj.data.target.attr('syncHtml');
+
   var model = obj.data.target.attr('validate-model');
   var value = '' ;
+  var valueHTML = '' ;
+
   $('input[validate-model^="'+model+'"]').each(function(){
     if ($(this).is(':checked')) {
       value = $.trim($(this).val());
+      valueHTML = $(this).attr('syncHtmlValue') || value;
     }
   });
-  sync = $(sync);
-  if (sync.length) {
-    sync.val(value);
+  syncValue = $(syncValue);
+  if (syncValue.length) {
+    syncValue.val(value);
+  }
+  syncHtml  = $(syncHtml);
+  if (syncHtml.length && obj.data.obj.op.syncHtml) {
+    syncHtml.html(valueHTML);
   }
 }
 
 customFormValidation.prototype.syncValueCheckBox = function(obj,errorView=true,allCheck=true)
 {
-  var sync  = obj.data.target.attr('syncValue');
+  var syncValue  = obj.data.target.attr('syncValue');
   var model = obj.data.target.attr('validate-model');
   var value = '' ;
   $('input[validate-model^="'+model+'"]').each(function(){
     if ($(this).is(':checked')) {
-      value += $.trim($(this).val()) + ',';
+      value += $.trim($(this).val()) + ' ';
     }
   });
-  sync = $(sync);
-  if (sync.length) {
-    sync.val(value);
+  syncValue = $(syncValue);
+  if (syncValue.length) {
+    syncValue.val(value);
   }
 }
 
