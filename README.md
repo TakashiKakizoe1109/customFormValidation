@@ -141,6 +141,7 @@ Options
 | avoid                 | `'.__noValidation'`              | avoid auto validation selector           |
 | disableBtn            | `'btn_disabled'`                 | add disabledSubmitButton's className     |
 | strongNotSame         | `true`                           | 強固な二重確認の有無(r-click paste 禁止) |
+| labelWrap             | `true`                           | radioボタンなどがlabelでwrapされているか |
 | syncValue             | `false`                          | 値のシンクロをするか否か                 |
 | startError            | `false`                          | 初期フォームチェックをするか否か         |
 | correctMsg            | `false`                          | correctMessageを表示するか否か           |
@@ -158,6 +159,9 @@ Options
 
 Updates
 ===========
+
+** Version 1.0.12 **  
+** add labelWrap . **
 
 ** Version 1.0.11 **  
 ** add sync html . **

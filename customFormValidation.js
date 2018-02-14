@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.11
+ * @version: 1.0.12
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -25,6 +25,7 @@ var customFormValidation = function(op) {
   this.op.disableBtn   = op.disableBtn   || 'btn_disabled' ;
 
   this.op.strongNotSame  = op.strongNotSame === false ? false : true  ;
+  this.op.labelWrap      = op.labelWrap     === false ? false : true  ;
   this.op.syncValue      = op.syncValue     === true  ? true  : false ;
   this.op.syncHtml       = op.syncHtml      === true  ? true  : false ;
   this.op.startError     = op.startError    === true  ? true  : false ;
@@ -647,6 +648,7 @@ customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCh
   var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
   var model = obj.data.target.attr('validate-model');
   var num = 0 ;
+  var labelWrap  = obj.data.target.attr('labelWrap') || obj.data.obj.op.labelWrap ;
   $('input[validate-model^="'+model+'"]').each(function(){
     if ($(this).is(':checked')) {
       num += 1;
@@ -658,14 +660,23 @@ customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCh
   }
 
   if (errorView) {
-    obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
+    if (labelWrap) {
+      obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
+      obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
+    } else {
+      obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
+      obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
+    }
     if (num < 1) {
       if (obj.data.obj.op.addClassMode === true) {
         obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
         obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
       }
-      obj.data.target.parent().parent().append(error);
+      if (labelWrap) {
+        obj.data.target.parent().parent().append(error);
+      } else {
+        obj.data.target.parent().append(error);
+      }
       return false ;
     } else {
       if (obj.data.obj.op.addClassMode === true) {
@@ -673,7 +684,11 @@ customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCh
         obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
       }
       if (obj.data.obj.op.correctMsg === true) {
-        obj.data.target.parent().parent().append(correct);
+        if (labelWrap) {
+          obj.data.target.parent().parent().append(correct);
+        } else {
+          obj.data.target.parent().append(correct);
+        }
       }
       return true ;
     }
