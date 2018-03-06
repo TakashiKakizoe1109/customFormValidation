@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.12
+ * @version: 1.0.13
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -139,7 +139,6 @@ customFormValidation.prototype.addValidation = function() {
   });
 
   /** submit */
-  // $(obj.op.selector).submit({obj:obj},obj.allCheck);
   $(obj.op.selector).submit({obj:obj},function(){
     return obj.allCheck({data:{obj:obj}},true,true,true);
   });
@@ -150,8 +149,11 @@ customFormValidation.prototype.addValidation = function() {
 
 };
 
-customFormValidation.prototype.syncValueText = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.syncValueText = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var syncValue = obj.data.target.attr('syncValue');
   var value = $.trim(obj.data.target.val());
   syncValue = $(syncValue);
@@ -165,10 +167,13 @@ customFormValidation.prototype.syncValueText = function(obj,errorView=true,allCh
   if (syncHtml.length && obj.data.obj.op.syncHtml) {
     syncHtml.html(valueHTML);
   }
-}
+};
 
-customFormValidation.prototype.syncValueSelect = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.syncValueSelect = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var syncValue = obj.data.target.attr('syncValue');
   var value = $.trim(obj.data.target.val());
   syncValue = $(syncValue);
@@ -182,10 +187,13 @@ customFormValidation.prototype.syncValueSelect = function(obj,errorView=true,all
   if (syncHtml.length && obj.data.obj.op.syncHtml) {
     syncHtml.html(valueHTML);
   }
-}
+};
 
-customFormValidation.prototype.syncValueRadio = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.syncValueRadio = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var syncValue  = obj.data.target.attr('syncValue');
   var syncHtml  = obj.data.target.attr('syncHtml');
 
@@ -207,10 +215,13 @@ customFormValidation.prototype.syncValueRadio = function(obj,errorView=true,allC
   if (syncHtml.length && obj.data.obj.op.syncHtml) {
     syncHtml.html(valueHTML);
   }
-}
+};
 
-customFormValidation.prototype.syncValueCheckBox = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.syncValueCheckBox = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var syncValue  = obj.data.target.attr('syncValue');
   var model = obj.data.target.attr('validate-model');
   var value = '' ;
@@ -223,10 +234,13 @@ customFormValidation.prototype.syncValueCheckBox = function(obj,errorView=true,a
   if (syncValue.length) {
     syncValue.val(value);
   }
-}
+};
 
-customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.inputTextPattern = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   /**  */
   var id    = obj.data.target.attr('id');
   var msgError   = obj.data.target.attr('msgPatternError') || obj.data.obj.op.msgPatternError ;
@@ -323,8 +337,11 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView=true,al
 
 };
 
-customFormValidation.prototype.inputTextNotSame = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.inputTextNotSame = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var id     = obj.data._target.attr('id');
   var msgError    = obj.data._target.attr('msgMailNotSameError') || obj.data.obj.op.msgMailNotSameError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_notsame-'+id+'">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
@@ -375,8 +392,11 @@ customFormValidation.prototype.inputTextNotSame = function(obj,errorView=true,al
 
 };
 
-customFormValidation.prototype.inputTextRequired = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.inputTextRequired = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
   var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
@@ -417,8 +437,11 @@ customFormValidation.prototype.inputTextRequired = function(obj,errorView=true,a
 
 };
 
-customFormValidation.prototype.inputTelRequired = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.inputTelRequired = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
   var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
@@ -465,8 +488,11 @@ customFormValidation.prototype.inputTelRequired = function(obj,errorView=true,al
 
 };
 
-customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_email_retype_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
   var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
@@ -507,8 +533,11 @@ customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView
 
 };
 
-customFormValidation.prototype.inputEmailRequired = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.inputEmailRequired = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
   var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
@@ -549,8 +578,11 @@ customFormValidation.prototype.inputEmailRequired = function(obj,errorView=true,
 
 };
 
-customFormValidation.prototype.selectBoxRequired = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.selectBoxRequired = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
   var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
@@ -591,8 +623,11 @@ customFormValidation.prototype.selectBoxRequired = function(obj,errorView=true,a
 
 };
 
-customFormValidation.prototype.checkBoxRequired = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.checkBoxRequired = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
   var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
@@ -640,8 +675,11 @@ customFormValidation.prototype.checkBoxRequired = function(obj,errorView=true,al
 
 };
 
-customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.radioRequired = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
   var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
@@ -702,8 +740,11 @@ customFormValidation.prototype.radioRequired = function(obj,errorView=true,allCh
 
 };
 
-customFormValidation.prototype.fileRequired = function(obj,errorView=true,allCheck=true)
+customFormValidation.prototype.fileRequired = function(obj,errorView,allCheck)
 {
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
+
   var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
   var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
   var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
@@ -745,7 +786,11 @@ customFormValidation.prototype.fileRequired = function(obj,errorView=true,allChe
 
 };
 
-customFormValidation.prototype.allCheck = function(e,move=true,errorView=true,submit=false){
+customFormValidation.prototype.allCheck = function(e,move,errorView,submit)
+{
+  move      = typeof move      === 'undefined' ? true : move ;
+  errorView = typeof errorView === 'undefined' ? true : errorView ;
+  allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
   var move = move ;
   var errorView = errorView ;

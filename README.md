@@ -160,6 +160,9 @@ Options
 Updates
 ===========
 
+** Version 1.0.13 **  
+** bug fix old browser . **
+
 ** Version 1.0.12 **  
 ** add labelWrap . **
 
