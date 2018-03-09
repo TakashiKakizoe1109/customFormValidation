@@ -132,33 +132,46 @@ $(function(){
 Options
 ===========
 
-| optionName            | defaultValue                     | Description                              |
-| :-------------------: | :------------------------------: | :--------------------------------------: |
-| selector              | `'#contactForm'`                 | auto validation の範囲を指定             |
-| offset                | `20`                             | エラー箇所自動スクロール時のoffset       |
-| moveSpeed             | `500`                            | エラー箇所自動スクロール時の速度         |
-| easing                | `'swing'`                        | エラー箇所自動スクロール時のモーション   |
-| avoid                 | `'.__noValidation'`              | avoid auto validation selector           |
-| disableBtn            | `'btn_disabled'`                 | add disabledSubmitButton's className     |
-| strongNotSame         | `true`                           | 強固な二重確認の有無(r-click paste 禁止) |
-| labelWrap             | `true`                           | radioボタンなどがlabelでwrapされているか |
-| syncValue             | `false`                          | 値のシンクロをするか否か                 |
-| startError            | `false`                          | 初期フォームチェックをするか否か         |
-| correctMsg            | `false`                          | correctMessageを表示するか否か           |
-| error                 | `'error_message'`                | add error_message's className            |
-| errorElement          | `'span'`                         | error_message's tag                      |
-| correct               | `'error_message'`                | add correct_message's className          |
-| correctElement        | `'span'`                         | correct_message's tag                    |
-| msgRequiredError      | `'必須項目です'`                 | default required error message           |
-| msgPatternError       | `'正しく入力してください'`       | default pattern error message            |
-| msgMailNotSameError   | `'メールアドレスが一致しません'` | default not same error message           |
-| msgRequiredCorrect    | `'入力済です'`                   | default required correct message         |
-| msgPatternCorrect     | `'正しく入力されています'`       | default pattern correct message          |
-| msgMailNotSameCorrect | `'一致しています'`               | default not same correct message         |
-| submitCallBack        | `''`                             | コールバック関数指定【Ajax使用FORMなど】(always return false) |
+| optionName                  | defaultValue                     | Description                              |
+| :-------------------------: | :------------------------------: | :--------------------------------------: |
+| selector                    | `'#contactForm'`                 | auto validation の範囲を指定             |
+| offset                      | `20`                             | エラー箇所自動スクロール時のoffset       |
+| moveSpeed                   | `500`                            | エラー箇所自動スクロール時の速度         |
+| easing                      | `'swing'`                        | エラー箇所自動スクロール時のモーション   |
+| avoid                       | `'.__noValidation'`              | avoid auto validation selector           |
+| disableBtn                  | `'btn_disabled'`                 | add disabledSubmitButton's className     |
+| strongNotSame               | `true`                           | 強固な二重確認の有無(r-click paste 禁止) |
+| syncValue                   | `false`                          | 値のシンクロをするか否か                 |
+| startError                  | `false`                          | 初期フォームチェックをするか否か         |
+| correctMsg                  | `false`                          | correctMessageを表示するか否か           |
+| error                       | `'error_message'`                | add error_message's className            |
+| errorElement                | `'span'`                         | error_message's tag                      |
+| correct                     | `'error_message'`                | add correct_message's className          |
+| correctElement              | `'span'`                         | correct_message's tag                    |
+| msgRequiredError            | `'必須項目です'`                 | default required error message           |
+| msgPatternError             | `'正しく入力してください'`       | default pattern error message            |
+| msgMailNotSameError         | `'メールアドレスが一致しません'` | default not same error message           |
+| msgRequiredCorrect          | `'入力済です'`                   | default required correct message         |
+| msgPatternCorrect           | `'正しく入力されています'`       | default pattern correct message          |
+| msgMailNotSameCorrect       | `'一致しています'`               | default not same correct message         |
+| addClassMode                | `false`                          | 特定のクラスをつけるかどうか             |
+| classNameRequiredError      | `'__RequiredError'`              | 必須チェックエラーのクラス名             |
+| classNamePatternError       | `'__PatternError'`               | パターンチェックエラーのクラス名         |
+| classNameMailNotSameError   | `'__MailNotSameError'`           | 同値チェックエラーのクラス名             |
+| classNameRequiredCorrect    | `'__RequiredCorrect'`            | 必須チェックOKのクラス名                 |
+| classNamePatternCorrect     | `'__PatternCorrect'`             | パターンチェックOKのクラス名             |
+| classNameMailNotSameCorrect | `'__MailNotSameCorrect'`         | 同値チェックOKのクラス名                 |
+| groupIdentificationPrefix   | `'__group_'`                     | グループ名の接頭辞                       |
+| submitCallBack              | `''`                             | コールバック関数指定【Ajax使用FORMなど】(always return false) |
 
 Updates
 ===========
+
+** Version 1.0.14 **  
+** bug fix . **
+** labelwrap was abolished . **
+** With this update, you can now set the checkbox's maximum number of checks. **
+** and you can now specify the position to output messages with HTML markup. **
 
 ** Version 1.0.13 **  
 ** bug fix old browser . **

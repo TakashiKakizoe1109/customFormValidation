@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.13
+ * @version: 1.0.14
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -25,7 +25,6 @@ var customFormValidation = function(op) {
   this.op.disableBtn   = op.disableBtn   || 'btn_disabled' ;
 
   this.op.strongNotSame  = op.strongNotSame === false ? false : true  ;
-  this.op.labelWrap      = op.labelWrap     === false ? false : true  ;
   this.op.syncValue      = op.syncValue     === true  ? true  : false ;
   this.op.syncHtml       = op.syncHtml      === true  ? true  : false ;
   this.op.startError     = op.startError    === true  ? true  : false ;
@@ -44,14 +43,16 @@ var customFormValidation = function(op) {
   this.op.msgMailNotSameCorrect = op.msgMailNotSameCorrect || '一致しています' ;
 
   this.op.addClassMode                = op.addClassMode === true ? true : false  ;
-  this.op.classNameRequiredError      = op.classNameRequiredError      = '__RequiredError' ;
-  this.op.classNamePatternError       = op.classNamePatternError       = '__PatternError' ;
-  this.op.classNameMailNotSameError   = op.classNameMailNotSameError   = '__MailNotSameError' ;
-  this.op.classNameRequiredCorrect    = op.classNameRequiredCorrect    = '__RequiredCorrect' ;
-  this.op.classNamePatternCorrect     = op.classNamePatternCorrect     = '__PatternCorrect' ;
-  this.op.classNameMailNotSameCorrect = op.classNameMailNotSameCorrect = '__MailNotSameCorrect' ;
+  this.op.classNameRequiredError      = op.classNameRequiredError      || '__RequiredError' ;
+  this.op.classNamePatternError       = op.classNamePatternError       || '__PatternError' ;
+  this.op.classNameMailNotSameError   = op.classNameMailNotSameError   || '__MailNotSameError' ;
+  this.op.classNameRequiredCorrect    = op.classNameRequiredCorrect    || '__RequiredCorrect' ;
+  this.op.classNamePatternCorrect     = op.classNamePatternCorrect     || '__PatternCorrect' ;
+  this.op.classNameMailNotSameCorrect = op.classNameMailNotSameCorrect || '__MailNotSameCorrect' ;
 
-  this.op.submitCallBack        = op.submitCallBack        || '' ;
+  this.op.groupIdentificationPrefix   = op.groupIdentificationPrefix   || '__group_' ;
+
+  this.op.submitCallBack = op.submitCallBack || '' ;
 
 };
 
@@ -59,6 +60,7 @@ customFormValidation.prototype.addValidation = function() {
   var obj = this ;
   obj.allCheck = this.allCheck ;
   var target = '' ;
+  var groupID = 0 ;
 
   /** elements search */
   $(obj.op.selector).find('select,input,textarea').not(obj.op.avoid).not('input[type^="submit"]').each(function(index, element){
@@ -70,11 +72,11 @@ customFormValidation.prototype.addValidation = function() {
     htmlTag = element.localName,
     type    = _t.attr('type');
 
-    /** defined relation */
-    var rel = _t.attr('validate-model') || '__noValidation';
-    rel = rel.split('.') ;
-    rel = rel[0] ;
-    _t.attr('validation-rel',rel);
+    /** group id increment */
+    groupID = groupID + 1 ;
+    var rel = _t.attr('validate-model') || '';
+    var group = rel === '' ? obj.op.groupIdentificationPrefix + groupID : obj.op.groupIdentificationPrefix + rel;
+    _t.attr('validate-group',group);
 
     /** required */
     var required = !!_t.attr('required') ;
@@ -151,6 +153,7 @@ customFormValidation.prototype.addValidation = function() {
 
 customFormValidation.prototype.syncValueText = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
@@ -171,6 +174,7 @@ customFormValidation.prototype.syncValueText = function(obj,errorView,allCheck)
 
 customFormValidation.prototype.syncValueSelect = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
@@ -191,6 +195,7 @@ customFormValidation.prototype.syncValueSelect = function(obj,errorView,allCheck
 
 customFormValidation.prototype.syncValueRadio = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
@@ -219,6 +224,7 @@ customFormValidation.prototype.syncValueRadio = function(obj,errorView,allCheck)
 
 customFormValidation.prototype.syncValueCheckBox = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
@@ -238,154 +244,268 @@ customFormValidation.prototype.syncValueCheckBox = function(obj,errorView,allChe
 
 customFormValidation.prototype.inputTextPattern = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  /**  */
-  var id    = obj.data.target.attr('id');
-  var msgError   = obj.data.target.attr('msgPatternError') || obj.data.obj.op.msgPatternError ;
-  var error = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_pattern-'+id+'">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgPatternCorrect') || obj.data.obj.op.msgPatternCorrect ;
-  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+' correct_pattern-'+id+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var value = $.trim(obj.data.target.val());
-  var model = obj.data.target.attr('validate-model');
+  /** common value */
+  var op = obj.data.obj.op ;
+  var target = obj.data.target ;
+
+  /** current processing value */
+  var group      = target.attr('validate-group');
+  var msgError   = target.attr('msgPatternError') || op.msgPatternError ;
+  var error = '<'+op.errorElement+' class="'+op.error+' error_pattern-'+group+'">'+msgError+'</'+op.errorElement+'>';
+  var msgCorrect = target.attr('msgPatternCorrect') || op.msgPatternCorrect ;
+  var correct  = '<'+op.correctElement+' class="'+op.correct+' correct_pattern-'+group+'">'+msgCorrect+'</'+op.correctElement+'>';
 
   /** match */
-  var match = false ;
-  var pattern = obj.data.target.attr('validate-pattern');
-  var checkVal = value ;
+  var match = true ;
   var checkRegEx = '' ;
 
-  if (pattern === 'yyyymmdd' ) {
-    if (value.length === 8) {
-      checkVal = value.substr(0,4) + '-' + value.substr(4,2) + '-' + value.substr(6,2) ;
-      checkRegEx = /^\d{4}-\d{2}-\d{2}$/;
-      if(checkVal.match(checkRegEx)){
-        var d = new Date(checkVal);
-        if(d.getTime() || d.getTime() === 0){
-          match = true ;
+  $('input[validate-group^="'+group+'"]').each(function(){
+    var pattern  = $(this).attr('validate-pattern');
+    var checkVal = $.trim($(this).val());
+    if (!checkVal) {
+      match = false ;
+    } else {
+      if (pattern === 'yyyymmdd' ) {
+        if (checkVal.length === 8) {
+          checkVal = checkVal.substr(0,4) + '-' + checkVal.substr(4,2) + '-' + checkVal.substr(6,2) ;
+          checkRegEx = /^\d{4}-\d{2}-\d{2}$/;
+          if(checkVal.match(checkRegEx)){
+            var d = new Date(checkVal);
+            if(d.getTime() || d.getTime() === 0){
+              match = match && true ;
+            } else {
+              match = false ;
+            }
+          }
+        }
+      } else if (pattern === 'yyyy-mm-dd') {
+        checkRegEx = /^\d{4}-\d{2}-\d{2}$/;
+        if(checkVal.match(checkRegEx)){
+          var d = new Date(checkVal);
+          if(d.getTime() || d.getTime() === 0){
+            match = match && true ;
+          } else {
+            match = false ;
+          }
+        }
+      } else if (pattern === 'email') {
+        checkRegEx = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
+        if(checkVal.match(checkRegEx)){
+          match = match && true ;
+        } else {
+          match = false ;
+        }
+      } else {
+        pattern = pattern.split('/');
+        var regex = '' ;
+        var flags = pattern[pattern.length-1];
+        var regex_length = pattern.length - 1 ;
+        for (var i = 1; i < regex_length; i++) {
+          regex += pattern[i] ;
+        }
+        var regexp = new RegExp(regex,flags);
+        result = checkVal.match(regexp) ;
+        if (!!result) {
+          match = match && !!result ;
+        } else {
+          match = false ;
         }
       }
     }
-  } else if (pattern === 'yyyy-mm-dd') {
-    checkRegEx = /^\d{4}-\d{2}-\d{2}$/;
-    if(checkVal.match(checkRegEx)){
-      var d = new Date(checkVal);
-      if(d.getTime() || d.getTime() === 0){
-        match = true ;
-      }
-    }
-  } else if (pattern === 'email') {
-    checkRegEx = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
-    if(checkVal.match(checkRegEx)){
-      match = true ;
-    }
-  } else {
-    pattern = pattern.split('/');
-    var regex = '' ;
-    var flags = pattern[pattern.length-1];
-    var regex_length = pattern.length - 1 ;
-    for (var i = 1; i < regex_length; i++) {
-      regex += pattern[i] ;
-    }
-    var regexp = new RegExp(regex,flags);
-    match = value.match(regexp) ;
-  }
+  });
 
-  /** error place */
-  var multi = !!($('input[validate-model="'+model+'"]').length - 1) ;
-
+  /** all element check */
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView) {
-    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_pattern-'+id).remove();
+  /** result */
+  if (!errorView) {
     if (match) {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNamePatternError);
-        obj.data.target.addClass(obj.data.obj.op.classNamePatternCorrect);
-      }
-      if (obj.data.obj.op.correctMsg === true) {
-        if (multi) {
-          obj.data.target.parent().append(correct);
-        } else {
-          obj.data.target.after(correct);
-        }
-      }
       return true ;
-    } else {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNamePatternCorrect);
-        obj.data.target.addClass(obj.data.obj.op.classNamePatternError);
-      }
-      if (multi) {
-        obj.data.target.parent().append(error);
-      } else {
-        obj.data.target.after(error);
-      }
+    } else{
       return false ;
     }
+  }
+
+  /** position */
+  var positionRelation   = target.attr('validate-position') || 'parent-append' ;
+  var targetView = 'append' ;
+  var targetPosition = target ;
+  positionRelation = positionRelation.split('-');
+  var i = 0
+  for (i; i < positionRelation.length; i++){
+    if (positionRelation[i]=='parent') {
+      targetPosition = targetPosition.parent() ;
+    } else if (positionRelation[i]=='next') {
+      targetPosition = targetPosition.next() ;
+    } else if (positionRelation[i]=='prev') {
+      targetPosition = targetPosition.prev() ;
+    }else if (positionRelation[i]=='append') {
+      targetView = 'append' ;
+    } else if (positionRelation[i]=='prepend') {
+      targetView = 'prepend' ;
+    } else if (positionRelation[i]=='after') {
+      targetView = 'after' ;
+    } else if (positionRelation[i]=='before') {
+      targetView = 'before' ;
+    }
+  }
+
+  /** error view */
+  target.parent().find('.'+op.correct+'.correct_pattern-'+group).remove();
+  target.parent().find('.'+op.error+'.error_pattern-'+group).remove();
+  if (match) {
+    if (op.addClassMode === true) {
+      target.removeClass(op.classNamePatternError);
+      target.addClass(op.classNamePatternCorrect);
+    }
+    if (op.correctMsg === true) {
+      if (targetView=='append') {
+        targetPosition.append(correct);
+      } else if (targetView=='prepend') {
+        targetPosition.prepend(correct);
+      } else if (targetView=='after') {
+        targetPosition.after(correct);
+      } else if (targetView=='before') {
+        targetPosition.before(correct);
+      }
+    }
+    return true ;
   } else {
-    if (match) {
-      return true ;
-    } else {
-      return false ;
+    if (op.addClassMode === true) {
+      target.removeClass(op.classNamePatternCorrect);
+      target.addClass(op.classNamePatternError);
     }
+    if (targetView=='append') {
+      targetPosition.append(error);
+    } else if (targetView=='prepend') {
+      targetPosition.prepend(error);
+    } else if (targetView=='after') {
+      targetPosition.after(error);
+    } else if (targetView=='before') {
+      targetPosition.before(error);
+    }
+    return false ;
   }
 
 };
 
 customFormValidation.prototype.inputTextNotSame = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  var id     = obj.data._target.attr('id');
-  var msgError    = obj.data._target.attr('msgMailNotSameError') || obj.data.obj.op.msgMailNotSameError ;
-  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_notsame-'+id+'">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data._target.attr('msgMailNotSameCorrect') || obj.data.obj.op.msgMailNotSameCorrect ;
-  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var target = $.trim(obj.data._sameTarget.val());
-  var value  = $.trim(obj.data._target.val());
+  /** common value */
+  var op = obj.data.obj.op ;
+  var retypeTarget      = obj.data._target ;
+  var sameTarget        = obj.data._sameTarget ;
 
+  /** current processing value */
+  var retypeTargetValue = $.trim(retypeTarget.val());
+  var sameTargetValue   = $.trim(sameTarget.val());
+  var id         = retypeTarget.attr('id');
+  var msgError   = retypeTarget.attr('msgMailNotSameError') || op.msgMailNotSameError ;
+  var error      = '<'+op.errorElement+' class="'+op.error+' error_notsame-'+id+'">'+msgError+'</'+op.errorElement+'>';
+  var msgCorrect = retypeTarget.attr('msgMailNotSameCorrect') || op.msgMailNotSameCorrect ;
+  var correct    = '<'+op.correctElement+' class="'+op.correct+' correct_notsame-'+id+'">'+msgCorrect+'</'+op.correctElement+'>';
+
+
+  /** all element check */
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView && (value!=''||target!='')) {
-    obj.data._target.parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data._sameTarget.parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data._target.parent().find('.'+obj.data.obj.op.error+'.error_notsame-'+id).remove();
-    obj.data._sameTarget.parent().find('.'+obj.data.obj.op.error+'.error_notsame-'+id).remove();
-    if (value===target) {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data._sameTarget.removeClass(obj.data.obj.op.classNameMailNotSameError);
-        obj.data._sameTarget.addClass(obj.data.obj.op.classNameMailNotSameCorrect);
-        obj.data._target.removeClass(obj.data.obj.op.classNameMailNotSameError);
-        obj.data._target.addClass(obj.data.obj.op.classNameMailNotSameCorrect);
-      }
-      if (obj.data.obj.op.correctMsg === true) {
-        obj.data._sameTarget.after(correct);
-        obj.data._target.after(correct);
-      }
-      return true ;
-    }else{
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data._sameTarget.removeClass(obj.data.obj.op.classNameMailNotSameCorrect);
-        obj.data._sameTarget.addClass(obj.data.obj.op.classNameMailNotSameError);
-        obj.data._target.removeClass(obj.data.obj.op.classNameMailNotSameCorrect);
-        obj.data._target.addClass(obj.data.obj.op.classNameMailNotSameError);
-      }
-      obj.data._sameTarget.after(error);
-      obj.data._target.after(error);
-      return false ;
-    }
-  } else {
-    if (value===target) {
+  /** result */
+  if (!errorView) {
+    if (retypeTargetValue===sameTargetValue) {
       return true ;
     } else{
+      return false ;
+    }
+  }
+
+  /** position */
+  var positionRelation   = retypeTarget.attr('validate-position') || 'after' ;
+  var targetView = 'after' ;
+  var retypeTargetPosition = retypeTarget ;
+  var sameTargetPosition   = sameTarget ;
+  positionRelation = positionRelation.split('-');
+  var i = 0
+  for (i; i < positionRelation.length; i++){
+    if (positionRelation[i]=='parent') {
+      retypeTargetPosition = retypeTargetPosition.parent() ;
+      sameTargetPosition   = sameTargetPosition.parent() ;
+    } else if (positionRelation[i]=='next') {
+      retypeTargetPosition = retypeTargetPosition.next() ;
+      sameTargetPosition = sameTargetPosition.next() ;
+    } else if (positionRelation[i]=='prev') {
+      retypeTargetPosition = retypeTargetPosition.prev() ;
+      sameTargetPosition = sameTargetPosition.prev() ;
+    } else if (positionRelation[i]=='append') {
+      targetView = 'append' ;
+    } else if (positionRelation[i]=='prepend') {
+      targetView = 'prepend' ;
+    } else if (positionRelation[i]=='after') {
+      targetView = 'after' ;
+    } else if (positionRelation[i]=='before') {
+      targetView = 'before' ;
+    }
+  }
+
+  /** errow view and result */
+  $(op.selector).find('.'+op.error+'.error_notsame-'+id).remove();
+  $(op.selector).find('.'+op.correct+'.correct_notsame-'+id).remove();
+  if ( retypeTargetValue!='' || sameTargetValue!='' ) {
+
+    if (retypeTargetValue===sameTargetValue) {
+      if (op.addClassMode === true) {
+        sameTarget.removeClass(op.classNameMailNotSameError);
+        sameTarget.addClass(op.classNameMailNotSameCorrect);
+        retypeTarget.removeClass(op.classNameMailNotSameError);
+        retypeTarget.addClass(op.classNameMailNotSameCorrect);
+      }
+      if (op.correctMsg === true) {
+        if (targetView=='append') {
+          sameTargetPosition.append(correct);
+          retypeTargetPosition.append(correct);
+        } else if (targetView=='prepend') {
+          sameTargetPosition.prepend(correct);
+          retypeTargetPosition.prepend(correct);
+        } else if (targetView=='after') {
+          sameTargetPosition.after(correct);
+          retypeTargetPosition.after(correct);
+        } else if (targetView=='before') {
+          sameTargetPosition.before(correct);
+          retypeTargetPosition.before(correct);
+        }
+      }
+      return true ;
+    } else {
+      if (op.addClassMode === true) {
+        sameTarget.removeClass(op.classNameMailNotSameCorrect);
+        sameTarget.addClass(op.classNameMailNotSameError);
+        retypeTarget.removeClass(op.classNameMailNotSameCorrect);
+        retypeTarget.addClass(op.classNameMailNotSameError);
+      }
+      if (targetView=='append') {
+        sameTargetPosition.append(error);
+        retypeTargetPosition.append(error);
+      } else if (targetView=='prepend') {
+        sameTargetPosition.prepend(error);
+        retypeTargetPosition.prepend(error);
+      } else if (targetView=='after') {
+        sameTargetPosition.after(error);
+        retypeTargetPosition.after(error);
+      } else if (targetView=='before') {
+        sameTargetPosition.before(error);
+        retypeTargetPosition.before(error);
+      }
       return false ;
     }
   }
@@ -394,395 +514,186 @@ customFormValidation.prototype.inputTextNotSame = function(obj,errorView,allChec
 
 customFormValidation.prototype.inputTextRequired = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
-  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
-  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var value = $.trim(obj.data.target.val());
+  /** common value */
+  var op = obj.data.obj.op ;
+  var target = obj.data.target ;
 
+  /** current processing value */
+  var property = obj.data.obj.returnRequiredProcessingValues(target,op,'text');
+
+  /** all element check */
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView) {
-    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
-    if (!value) {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
-      }
-      obj.data.target.after(error);
-      return false ;
-    } else {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
-      }
-      if (obj.data.obj.op.correctMsg === true) {
-        obj.data.target.after(correct);
-      }
-      return true ;
-    }
-  } else {
-    if (!value) {
-      return false ;
-    } else {
-      return true ;
-    }
-  }
+  /** result */
+  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView);
 
 };
 
 customFormValidation.prototype.inputTelRequired = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
-  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
-  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var model = obj.data.target.attr('validate-model');
-  var value = true ;
-  $('input[validate-model^="'+model+'"]').each(function(){
-    if (!$(this).val()) {
-      value = false ;
-    }
-  });
+  /** common value */
+  var op = obj.data.obj.op ;
+  var target = obj.data.target ;
 
+  /** current processing value */
+  var property = obj.data.obj.returnRequiredProcessingValues(target,op,'tel');
+
+  /** all element check */
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView) {
-    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
-    if (!value) {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
-      }
-      obj.data.target.parent().append(error);
-      return false ;
-    } else {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
-      }
-      if (obj.data.obj.op.correctMsg === true) {
-        obj.data.target.parent().append(correct);
-      }
-      return true ;
-    }
-  } else {
-    if (!value) {
-      return false ;
-    } else {
-      return true ;
-    }
-  }
+  /** result */
+  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView);
 
 };
 
 customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
-  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_email_retype_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
-  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var value = $.trim(obj.data.target.val());
+  /** common value */
+  var op = obj.data.obj.op ;
+  var target = obj.data.target ;
 
+  /** current processing value */
+  var property = obj.data.obj.returnRequiredProcessingValues(target,op,'emailretype');
+
+  /** all element check */
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView) {
-    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_email_retype_required').remove();
-    if (!value) {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
-      }
-      obj.data.target.after(error);
-      return false ;
-    } else {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
-      }
-      if (obj.data.obj.op.correctMsg === true) {
-        obj.data.target.after(correct);
-      }
-      return true ;
-    }
-  } else {
-    if (!value) {
-      return false ;
-    } else {
-      return true ;
-    }
-  }
+  /** result */
+  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'after');
+
 
 };
 
 customFormValidation.prototype.inputEmailRequired = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
-  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
-  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var value = $.trim(obj.data.target.val());
+  /** common value */
+  var op = obj.data.obj.op ;
+  var target = obj.data.target ;
 
+  /** current processing value */
+  var property = obj.data.obj.returnRequiredProcessingValues(target,op,'email');
+
+  /** all element check */
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView) {
-    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
-    if (!value) {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
-      }
-      obj.data.target.after(error);
-      return false ;
-    } else {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
-      }
-      if (obj.data.obj.op.correctMsg === true) {
-        obj.data.target.after(correct);
-      }
-      return true ;
-    }
-  } else {
-    if (!value) {
-      return false ;
-    } else {
-      return true ;
-    }
-  }
+  /** result */
+  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'after');
 
 };
 
 customFormValidation.prototype.selectBoxRequired = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
-  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
-  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var value = $.trim(obj.data.target.val())
+  /** common value */
+  var op = obj.data.obj.op ;
+  var target = obj.data.target ;
 
+  /** current processing value */
+  var property = obj.data.obj.returnRequiredProcessingValues(target,op,'selectbox');
+
+  /** all element check */
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView) {
-    obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
-    if (!value) {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
-      }
-      obj.data.target.parent().parent().append(error);
-      return false ;
-    } else {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
-      }
-      if (obj.data.obj.op.correctMsg === true) {
-        obj.data.target.parent().parent().append(correct);
-      }
-      return true ;
-    }
-  } else {
-    if (!value) {
-      return false ;
-    } else {
-      return true ;
-    }
-  }
+  /** result */
+  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
 
 };
 
 customFormValidation.prototype.checkBoxRequired = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
-  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
-  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var requiredNum = obj.data.target.attr('data-required');
-  var model       = obj.data.target.attr('validate-model');
-  var num = 0 ;
-  $('input[validate-model^="'+model+'"]').each(function(){
-    if ($(this).is(':checked')) {
-      num += 1;
-    }
-  });
+  /** common value */
+  var op = obj.data.obj.op ;
+  var target = obj.data.target ;
 
+  /** current processing value */
+  var property = obj.data.obj.returnRequiredProcessingValues(target,op,'checkbox');
+
+  /** all element check */
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView) {
-    obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
-    if (num < requiredNum) {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
-      }
-      obj.data.target.parent().parent().append(error);
-      return false ;
-    } else {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
-      }
-      if (obj.data.obj.op.correctMsg === true) {
-        obj.data.target.parent().parent().append(correct);
-      }
-      return true ;
-    }
-  } else {
-    if (num < requiredNum) {
-      return false ;
-    } else {
-      return true ;
-    }
-  }
+  /** result */
+  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
 
 };
 
 customFormValidation.prototype.radioRequired = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
-  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
-  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var model = obj.data.target.attr('validate-model');
-  var num = 0 ;
-  var labelWrap  = obj.data.target.attr('labelWrap') || obj.data.obj.op.labelWrap ;
-  $('input[validate-model^="'+model+'"]').each(function(){
-    if ($(this).is(':checked')) {
-      num += 1;
-    }
-  });
+  /** common value */
+  var op = obj.data.obj.op ;
+  var target = obj.data.target ;
 
+  /** current processing value */
+  var property = obj.data.obj.returnRequiredProcessingValues(target,op,'radio');
+
+  /** all element check */
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView) {
-    if (labelWrap) {
-      obj.data.target.parent().parent().find('.'+obj.data.obj.op.correct).remove();
-      obj.data.target.parent().parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
-    } else {
-      obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
-      obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
-    }
-    if (num < 1) {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
-      }
-      if (labelWrap) {
-        obj.data.target.parent().parent().append(error);
-      } else {
-        obj.data.target.parent().append(error);
-      }
-      return false ;
-    } else {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
-      }
-      if (obj.data.obj.op.correctMsg === true) {
-        if (labelWrap) {
-          obj.data.target.parent().parent().append(correct);
-        } else {
-          obj.data.target.parent().append(correct);
-        }
-      }
-      return true ;
-    }
-  } else {
-    if (num < 1) {
-      return false ;
-    } else {
-      return true ;
-    }
-  }
+  /** result */
+  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
 
 };
 
 customFormValidation.prototype.fileRequired = function(obj,errorView,allCheck)
 {
+  /** initial value */
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  var msgError   = obj.data.target.attr('msgRequiredError') || obj.data.obj.op.msgRequiredError ;
-  var error  = '<'+obj.data.obj.op.errorElement+' class="'+obj.data.obj.op.error+' error_required">'+msgError+'</'+obj.data.obj.op.errorElement+'>';
-  var msgCorrect = obj.data.target.attr('msgRequiredCorrect') || obj.data.obj.op.msgRequiredCorrect ;
-  var correct  = '<'+obj.data.obj.op.correctElement+' class="'+obj.data.obj.op.correct+'">'+msgCorrect+'</'+obj.data.obj.op.correctElement+'>';
-  var model = obj.data.target.attr('validate-model');
-  var file = !obj.data.target[0].files[0] ;
+  /** common value */
+  var op = obj.data.obj.op ;
+  var target = obj.data.target ;
 
+  /** current processing value */
+  var property = obj.data.obj.returnRequiredProcessingValues(target,op,'file');
+
+  /** all element check */
   if (allCheck) {
     obj.data.obj.allCheck({data:{obj:obj.data.obj}},false,false);
   }
 
-  if (errorView) {
-    obj.data.target.parent().find('.'+obj.data.obj.op.correct).remove();
-    obj.data.target.parent().find('.'+obj.data.obj.op.error+'.error_required').remove();
-    if (file) {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredCorrect);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredError);
-      }
-      obj.data.target.parent().append(error);
-      return false ;
-    } else {
-      if (obj.data.obj.op.addClassMode === true) {
-        obj.data.target.removeClass(obj.data.obj.op.classNameRequiredError);
-        obj.data.target.addClass(obj.data.obj.op.classNameRequiredCorrect);
-      }
-      if (obj.data.obj.op.correctMsg === true) {
-        obj.data.target.parent().append(correct);
-      }
-      return true ;
-    }
-  } else {
-    if (file) {
-      return false ;
-    } else {
-      return true ;
-    }
-  }
+  /** result */
+  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-append');
 
 };
 
@@ -792,8 +703,6 @@ customFormValidation.prototype.allCheck = function(e,move,errorView,submit)
   errorView = typeof errorView === 'undefined' ? true : errorView ;
   allCheck  = typeof allCheck  === 'undefined' ? true : allCheck ;
 
-  var move = move ;
-  var errorView = errorView ;
   var obj = e.data.obj ;
   var target = '' ;
   var check = true ;
@@ -852,7 +761,6 @@ customFormValidation.prototype.allCheck = function(e,move,errorView,submit)
       singleCheck = obj.inputTextNotSame({data:{obj:obj,_sameTarget:_sameTarget,_target:target}},errorView,false);
     }
 
-    // console.log('singleCheck:'+singleCheck+' '+htmlTag+':'+type);
     if (!singleCheck && moveTarget === '') {
       moveTarget = targetTop.offset().top-obj.op.offset ;
     }
@@ -881,3 +789,137 @@ customFormValidation.prototype.allCheck = function(e,move,errorView,submit)
   }
   return check ;
 };
+
+customFormValidation.prototype.returnRequiredProcessingValues = function(target,op,type)
+{
+  /** initial value */
+  type = typeof type === 'undefined' ? '' : type ;
+
+  var processingValues = {} ;
+  processingValues.group      = target.attr('validate-group');
+  processingValues.msgError   = target.attr('msgRequiredError') || op.msgRequiredError ;
+  processingValues.error      = '<'+op.errorElement+' class="'+op.error+' error_required '+processingValues.group+'">'+processingValues.msgError+'</'+op.errorElement+'>';
+  processingValues.msgCorrect = target.attr('msgRequiredCorrect') || op.msgRequiredCorrect ;
+  processingValues.correct    = '<'+op.correctElement+' class="'+op.correct+' '+processingValues.group+'">'+processingValues.msgCorrect+'</'+op.correctElement+'>';
+  processingValues.model      = target.attr('validate-model');
+  processingValues.position   = target.attr('validate-position') || '' ;
+
+  if (type=='radio') {
+    processingValues.value = 0 ;
+    $('input[validate-model^="'+processingValues.model+'"]').each(function(){
+      if ($(this).is(':checked')) {
+        processingValues.value += 1;
+      }
+    });
+    if (processingValues.value < 1 ) {
+      processingValues.value = false ;
+    } else {
+      processingValues.value = true ;
+    }
+  } else if (type=='checkbox') {
+    processingValues.value = 0 ;
+    $('input[validate-model^="'+processingValues.model+'"]').each(function(){
+      if ($(this).is(':checked')) {
+        processingValues.value += 1;
+      }
+    });
+    var minNum = target.attr('data-required') || 0;
+    var maxNum = target.attr('data-required-max') || 999999 ;
+    if (minNum <= processingValues.value && processingValues.value <= maxNum ) {
+      processingValues.value = true ;
+    } else {
+      processingValues.value = false ;
+    }
+  } else if (type=='file') {
+    processingValues.value     = !!target[0].files[0];
+  } else {
+    processingValues.value     = $.trim(target.val());
+    $('input[validate-model^="'+processingValues.model+'"]').each(function(){
+      if (!$(this).val()) {
+        processingValues.value = false ;
+      }
+    });
+  }
+
+  return processingValues ;
+};
+
+customFormValidation.prototype.returnRequiredResult = function(target,op,property,errorView,positionRelation)
+{
+  /** initial value */
+  var
+  targetPosition = target,
+  targetView = 'append' ;
+
+  if (typeof positionRelation === 'undefined') {
+    targetPosition = targetPosition.parent() ;
+  } else {
+    positionRelation = property.position != '' ? property.position : positionRelation ;
+    positionRelation = positionRelation.split('-');
+    var i = 0
+    for (i; i < positionRelation.length; i++){
+      if (positionRelation[i]=='parent') {
+        targetPosition = targetPosition.parent() ;
+      } else if (positionRelation[i]=='next') {
+        targetPosition = targetPosition.next() ;
+      } else if (positionRelation[i]=='prev') {
+        targetPosition = targetPosition.prev() ;
+      } else if (positionRelation[i]=='append') {
+        targetView = 'append' ;
+      } else if (positionRelation[i]=='prepend') {
+        targetView = 'prepend' ;
+      } else if (positionRelation[i]=='after') {
+        targetView = 'after' ;
+      } else if (positionRelation[i]=='before') {
+        targetView = 'before' ;
+      }
+    }
+  }
+
+  /** return only */
+  if (!errorView){
+    if (!property.value) {
+      return false ;
+    } else {
+      return true ;
+    }
+  }
+
+  /** error view */
+  $(op.selector).find('.'+op.correct+'.'+property.group).remove();
+  $(op.selector).parent().find('.'+op.error+'.error_required'+'.'+property.group).remove();
+  if (!property.value) {
+    if (op.addClassMode === true) {
+      target.removeClass(op.classNameRequiredCorrect);
+      target.addClass(op.classNameRequiredError);
+    }
+    if (targetView=='append') {
+      targetPosition.append(property.error);
+    } else if (targetView=='prepend') {
+      targetPosition.prepend(property.error);
+    } else if (targetView=='after') {
+      targetPosition.after(property.error);
+    } else if (targetView=='before') {
+      targetPosition.before(property.error);
+    }
+    return false ;
+  } else {
+    if (op.addClassMode === true) {
+      target.removeClass(op.classNameRequiredError);
+      target.addClass(op.classNameRequiredCorrect);
+    }
+    if (op.correctMsg === true) {
+      if (targetView=='append') {
+        targetPosition.append(property.correct);
+      } else if (targetView=='prepend') {
+        targetPosition.prepend(property.correct);
+      } else if (targetView=='after') {
+        targetPosition.after(property.correct);
+      } else if (targetView=='before') {
+        targetPosition.before(property.correct);
+      }
+    }
+    return true ;
+  }
+
+}
