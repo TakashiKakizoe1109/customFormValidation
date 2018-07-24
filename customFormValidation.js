@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.14
+ * @version: 1.0.15
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -43,9 +43,11 @@ var customFormValidation = function(op) {
   this.op.msgMailNotSameCorrect = op.msgMailNotSameCorrect || '一致しています' ;
 
   this.op.addClassMode                = op.addClassMode === true ? true : false  ;
+  this.op.eventNameError              = op.eventNameError              || 'customFormValidationError' ;
   this.op.classNameRequiredError      = op.classNameRequiredError      || '__RequiredError' ;
   this.op.classNamePatternError       = op.classNamePatternError       || '__PatternError' ;
   this.op.classNameMailNotSameError   = op.classNameMailNotSameError   || '__MailNotSameError' ;
+  this.op.eventNameCorrect            = op.eventNameError              || 'customFormValidationCorrect' ;
   this.op.classNameRequiredCorrect    = op.classNameRequiredCorrect    || '__RequiredCorrect' ;
   this.op.classNamePatternCorrect     = op.classNamePatternCorrect     || '__PatternCorrect' ;
   this.op.classNameMailNotSameCorrect = op.classNameMailNotSameCorrect || '__MailNotSameCorrect' ;
@@ -142,7 +144,13 @@ customFormValidation.prototype.addValidation = function() {
 
   /** submit */
   $(obj.op.selector).submit({obj:obj},function(){
-    return obj.allCheck({data:{obj:obj}},true,true,true);
+    var check = obj.allCheck({data:{obj:obj}},true,true,true);
+    if (!check) {
+      $(document).trigger(obj.op.eventNameError);
+    } else {
+      $(document).trigger(obj.op.eventNameCorrect);
+    }
+    return check ;
   });
 
 
@@ -266,6 +274,7 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView,allChec
   $('input[validate-group^="'+group+'"]').each(function(){
     var pattern  = $(this).attr('validate-pattern');
     var checkVal = $.trim($(this).val());
+    var d = '' ;
     if (!checkVal) {
       match = false ;
     } else {
@@ -274,7 +283,7 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView,allChec
           checkVal = checkVal.substr(0,4) + '-' + checkVal.substr(4,2) + '-' + checkVal.substr(6,2) ;
           checkRegEx = /^\d{4}-\d{2}-\d{2}$/;
           if(checkVal.match(checkRegEx)){
-            var d = new Date(checkVal);
+            d = new Date(checkVal);
             if(d.getTime() || d.getTime() === 0){
               match = match && true ;
             } else {
@@ -285,7 +294,7 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView,allChec
       } else if (pattern === 'yyyy-mm-dd') {
         checkRegEx = /^\d{4}-\d{2}-\d{2}$/;
         if(checkVal.match(checkRegEx)){
-          var d = new Date(checkVal);
+          d = new Date(checkVal);
           if(d.getTime() || d.getTime() === 0){
             match = match && true ;
           } else {
@@ -337,7 +346,7 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView,allChec
   var targetView = 'append' ;
   var targetPosition = target ;
   positionRelation = positionRelation.split('-');
-  var i = 0
+  var i = 0 ;
   for (i; i < positionRelation.length; i++){
     if (positionRelation[i]=='parent') {
       targetPosition = targetPosition.parent() ;
@@ -436,7 +445,7 @@ customFormValidation.prototype.inputTextNotSame = function(obj,errorView,allChec
   var retypeTargetPosition = retypeTarget ;
   var sameTargetPosition   = sameTarget ;
   positionRelation = positionRelation.split('-');
-  var i = 0
+  var i = 0 ;
   for (i; i < positionRelation.length; i++){
     if (positionRelation[i]=='parent') {
       retypeTargetPosition = retypeTargetPosition.parent() ;
@@ -531,7 +540,7 @@ customFormValidation.prototype.inputTextRequired = function(obj,errorView,allChe
   }
 
   /** result */
-  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView);
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView);
 
 };
 
@@ -554,7 +563,7 @@ customFormValidation.prototype.inputTelRequired = function(obj,errorView,allChec
   }
 
   /** result */
-  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView);
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView);
 
 };
 
@@ -577,7 +586,7 @@ customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView
   }
 
   /** result */
-  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'after');
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'after');
 
 
 };
@@ -601,7 +610,7 @@ customFormValidation.prototype.inputEmailRequired = function(obj,errorView,allCh
   }
 
   /** result */
-  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'after');
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'after');
 
 };
 
@@ -624,7 +633,7 @@ customFormValidation.prototype.selectBoxRequired = function(obj,errorView,allChe
   }
 
   /** result */
-  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
 
 };
 
@@ -647,7 +656,7 @@ customFormValidation.prototype.checkBoxRequired = function(obj,errorView,allChec
   }
 
   /** result */
-  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
 
 };
 
@@ -670,7 +679,7 @@ customFormValidation.prototype.radioRequired = function(obj,errorView,allCheck)
   }
 
   /** result */
-  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
 
 };
 
@@ -693,7 +702,7 @@ customFormValidation.prototype.fileRequired = function(obj,errorView,allCheck)
   }
 
   /** result */
-  return result = obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-append');
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-append');
 
 };
 
@@ -856,7 +865,7 @@ customFormValidation.prototype.returnRequiredResult = function(target,op,propert
   } else {
     positionRelation = property.position != '' ? property.position : positionRelation ;
     positionRelation = positionRelation.split('-');
-    var i = 0
+    var i = 0 ;
     for (i; i < positionRelation.length; i++){
       if (positionRelation[i]=='parent') {
         targetPosition = targetPosition.parent() ;
@@ -922,4 +931,4 @@ customFormValidation.prototype.returnRequiredResult = function(target,op,propert
     return true ;
   }
 
-}
+};

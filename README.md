@@ -23,8 +23,8 @@ javascriptファイルをダウンロードしてください
 ### 2. Require jQuery and this javascript
 
 ```
-<script type="text/javascript">jquery.js</script>
-<script type="text/javascript">customFormValidation.js</script>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="customFormValidation.js"></script>
 ```
 
 Markup Html
@@ -296,9 +296,11 @@ Options
 | msgPatternCorrect           | `'正しく入力されています'`       | default pattern correct message          |
 | msgMailNotSameCorrect       | `'一致しています'`               | default not same correct message         |
 | addClassMode                | `false`                          | 特定のクラスをつけるかどうか             |
+| eventNameError              | `'customFormValidationError'`    | Error時に発火するイベント名              |
 | classNameRequiredError      | `'__RequiredError'`              | 必須チェックエラーのクラス名             |
 | classNamePatternError       | `'__PatternError'`               | パターンチェックエラーのクラス名         |
 | classNameMailNotSameError   | `'__MailNotSameError'`           | 同値チェックエラーのクラス名             |
+| eventNameCorrect            | `'customFormValidationCorrect'`  | Correct時に発火するイベント名            |
 | classNameRequiredCorrect    | `'__RequiredCorrect'`            | 必須チェックOKのクラス名                 |
 | classNamePatternCorrect     | `'__PatternCorrect'`             | パターンチェックOKのクラス名             |
 | classNameMailNotSameCorrect | `'__MailNotSameCorrect'`         | 同値チェックOKのクラス名                 |
@@ -307,6 +309,10 @@ Options
 
 Updates
 ===========
+
+#### Version 1.0.15
+bug fix .  
+add event trigger .  
 
 #### Version 1.0.14
 bug fix .  
