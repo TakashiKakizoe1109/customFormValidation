@@ -310,6 +310,10 @@ Options
 Updates
 ===========
 
+#### Version 1.0.16
+bug fix .  
+add text required position .  
+
 #### Version 1.0.15
 bug fix .  
 add event trigger .  

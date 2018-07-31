@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.15
+ * @version: 1.0.16
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -540,8 +540,8 @@ customFormValidation.prototype.inputTextRequired = function(obj,errorView,allChe
   }
 
   /** result */
-  return obj.data.obj.returnRequiredResult(target,op,property,errorView);
-
+  var positionRelation   = target.attr('validate-position') || 'parent-append' ;
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,positionRelation);
 };
 
 customFormValidation.prototype.inputTelRequired = function(obj,errorView,allCheck)
@@ -563,8 +563,8 @@ customFormValidation.prototype.inputTelRequired = function(obj,errorView,allChec
   }
 
   /** result */
-  return obj.data.obj.returnRequiredResult(target,op,property,errorView);
-
+  var positionRelation   = target.attr('validate-position') || 'parent-append' ;
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,positionRelation);
 };
 
 customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView,allCheck)
@@ -586,8 +586,8 @@ customFormValidation.prototype.inputEmailRetypeRequired = function(obj,errorView
   }
 
   /** result */
-  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'after');
-
+  var positionRelation   = target.attr('validate-position') || 'after' ;
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,positionRelation);
 
 };
 
@@ -610,8 +610,8 @@ customFormValidation.prototype.inputEmailRequired = function(obj,errorView,allCh
   }
 
   /** result */
-  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'after');
-
+  var positionRelation   = target.attr('validate-position') || 'after' ;
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,positionRelation);
 };
 
 customFormValidation.prototype.selectBoxRequired = function(obj,errorView,allCheck)
@@ -633,8 +633,8 @@ customFormValidation.prototype.selectBoxRequired = function(obj,errorView,allChe
   }
 
   /** result */
-  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
-
+  var positionRelation   = target.attr('validate-position') || 'parent-parent-append' ;
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,positionRelation);
 };
 
 customFormValidation.prototype.checkBoxRequired = function(obj,errorView,allCheck)
@@ -656,8 +656,8 @@ customFormValidation.prototype.checkBoxRequired = function(obj,errorView,allChec
   }
 
   /** result */
-  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
-
+  var positionRelation   = target.attr('validate-position') || 'parent-parent-append' ;
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,positionRelation);
 };
 
 customFormValidation.prototype.radioRequired = function(obj,errorView,allCheck)
@@ -679,8 +679,8 @@ customFormValidation.prototype.radioRequired = function(obj,errorView,allCheck)
   }
 
   /** result */
-  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-parent-append');
-
+  var positionRelation   = target.attr('validate-position') || 'parent-append' ;
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,positionRelation);
 };
 
 customFormValidation.prototype.fileRequired = function(obj,errorView,allCheck)
@@ -702,7 +702,8 @@ customFormValidation.prototype.fileRequired = function(obj,errorView,allCheck)
   }
 
   /** result */
-  return obj.data.obj.returnRequiredResult(target,op,property,errorView,'parent-append');
+  var positionRelation   = target.attr('validate-position') || 'parent-append' ;
+  return obj.data.obj.returnRequiredResult(target,op,property,errorView,positionRelation);
 
 };
 
@@ -849,7 +850,6 @@ customFormValidation.prototype.returnRequiredProcessingValues = function(target,
       }
     });
   }
-
   return processingValues ;
 };
 
