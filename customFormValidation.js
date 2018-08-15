@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.17
+ * @version: 1.0.18
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -65,6 +65,8 @@ customFormValidation.prototype.addValidation = function() {
   var target = '' ;
   var groupID = 0 ;
 
+  $(obj.op.selector).find('input[type^="submit"]').attr('disabled',false);
+
   /** elements search */
   $(obj.op.selector).find('select,input,textarea').not(obj.op.avoid).not('input[type^="submit"]').each(function(index, element){
 
@@ -120,7 +122,12 @@ customFormValidation.prototype.addValidation = function() {
       _sameTarget.on('keyup blur',{obj:obj,_sameTarget:_sameTarget,_target:target},obj.inputTextNotSame);
       _t.on('keyup blur',{obj:obj,_sameTarget:_sameTarget,_target:target},obj.inputTextNotSame);
       if (obj.op.strongNotSame) {
-        _t.css('user-select', 'none').on('copy paste contextmenu', false);
+        _sameTarget.on('copy', function() {
+          return false;
+        });
+        _t.on('paste', function() {
+          return false;
+        });
       }
     }
 

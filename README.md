@@ -311,6 +311,10 @@ Options
 Updates
 ===========
 
+#### Version 1.0.18
+Fixing strong double check .  
+Added "handling disabled" which is a measure against no script .  
+
 #### Version 1.0.17
 add double check mode .  
 
