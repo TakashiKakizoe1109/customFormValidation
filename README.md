@@ -296,6 +296,7 @@ Options
 | msgPatternCorrect           | `'正しく入力されています'`       | default pattern correct message          |
 | msgMailNotSameCorrect       | `'一致しています'`               | default not same correct message         |
 | addClassMode                | `false`                          | 特定のクラスをつけるかどうか             |
+| doubleCheckMode             | `true`                           | 二重送信防止をするかどうか               |
 | eventNameError              | `'customFormValidationError'`    | Error時に発火するイベント名              |
 | classNameRequiredError      | `'__RequiredError'`              | 必須チェックエラーのクラス名             |
 | classNamePatternError       | `'__PatternError'`               | パターンチェックエラーのクラス名         |
@@ -309,6 +310,9 @@ Options
 
 Updates
 ===========
+
+#### Version 1.0.17
+add double check mode .  
 
 #### Version 1.0.16
 bug fix .  

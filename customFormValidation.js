@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.16
+ * @version: 1.0.17
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -42,7 +42,8 @@ var customFormValidation = function(op) {
   this.op.msgPatternCorrect     = op.msgPatternCorrect     || '正しく入力されています' ;
   this.op.msgMailNotSameCorrect = op.msgMailNotSameCorrect || '一致しています' ;
 
-  this.op.addClassMode                = op.addClassMode === true ? true : false  ;
+  this.op.addClassMode                = op.addClassMode    === true  ? true  : false  ;
+  this.op.doubleCheckMode             = op.doubleCheckMode === false ? false : true  ;
   this.op.eventNameError              = op.eventNameError              || 'customFormValidationError' ;
   this.op.classNameRequiredError      = op.classNameRequiredError      || '__RequiredError' ;
   this.op.classNamePatternError       = op.classNamePatternError       || '__PatternError' ;
@@ -147,12 +148,19 @@ customFormValidation.prototype.addValidation = function() {
     var check = obj.allCheck({data:{obj:obj}},true,true,true);
     if (!check) {
       $(document).trigger(obj.op.eventNameError);
+      return false ;
     } else {
       $(document).trigger(obj.op.eventNameCorrect);
+      if (obj.op.doubleCheckMode) {
+        var submitBtn = $(obj.op.selector).find('input[type^="submit"]') ;
+        submitBtn.addClass(obj.op.disableBtn);
+        submitBtn.on('click',function(){
+          return false ;
+        });
+      }
+      return true ;
     }
-    return check ;
   });
-
 
   /** btn disabled */
   obj.allCheck({data:{obj:obj}},false,obj.op.startError);
