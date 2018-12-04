@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.18
+ * @version: 1.0.19
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -55,6 +55,7 @@ var customFormValidation = function(op) {
 
   this.op.groupIdentificationPrefix   = op.groupIdentificationPrefix   || '__group_' ;
 
+  this.op.clickSubmit    = op.clickSubmit    || '' ;
   this.op.submitCallBack = op.submitCallBack || '' ;
 
 };
@@ -169,8 +170,23 @@ customFormValidation.prototype.addValidation = function() {
     }
   });
 
+  if (obj.op.clickSubmit) {
+    $(obj.op.clickSubmit).click({obj:obj},function(){
+      var check = obj.allCheck({data:{obj:obj}},true,true,true);
+      if (!check) {
+        $(document).trigger(obj.op.eventNameError);
+        return false ;
+      } else {
+        $(document).trigger(obj.op.eventNameCorrect);
+        obj.callback();
+        return true ;
+      }
+    });
+  }
+
   /** btn disabled */
   obj.allCheck({data:{obj:obj}},false,obj.op.startError);
+  return this ;
 
 };
 
@@ -805,8 +821,14 @@ customFormValidation.prototype.allCheck = function(e,move,errorView,submit)
 
   if (!check) {
     $(obj.op.selector).find('input[type^="submit"]').addClass(obj.op.disableBtn);
+    if (obj.op.clickSubmit) {
+      $(obj.op.clickSubmit).addClass(obj.op.disableBtn);
+    }
   } else {
     $(obj.op.selector).find('input[type^="submit"]').removeClass(obj.op.disableBtn);
+    if (obj.op.clickSubmit) {
+      $(obj.op.clickSubmit).removeClass(obj.op.disableBtn);
+    }
     if (this.op.submitCallBack !== '' && submit) {
       this.op.submitCallBack();
       return false ;

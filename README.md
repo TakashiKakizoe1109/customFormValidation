@@ -306,10 +306,14 @@ Options
 | classNamePatternCorrect     | `'__PatternCorrect'`             | パターンチェックOKのクラス名             |
 | classNameMailNotSameCorrect | `'__MailNotSameCorrect'`         | 同値チェックOKのクラス名                 |
 | groupIdentificationPrefix   | `'__group_'`                     | グループ名の接頭辞                       |
+| clickSubmit                 | `''`                             | submitの代わりになる要素のセレクタ(aタグ等)  |
 | submitCallBack              | `''`                             | コールバック関数指定【Ajax使用FORMなど】(always return false) |
 
 Updates
 ===========
+
+#### Version 1.0.19
+Added "clickSubmit" It is now possible to specify an alternative element for the submit button in a form without a submit button .  
 
 #### Version 1.0.18
 Fixing strong double check .  
