@@ -312,6 +312,9 @@ Options
 Updates
 ===========
 
+#### Version 1.0.20
+bug fix .  
+
 #### Version 1.0.19
 Added "clickSubmit" It is now possible to specify an alternative element for the submit button in a form without a submit button .  
 

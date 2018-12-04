@@ -4,7 +4,7 @@
  *
  * @author: TakashiKakizoe
  * @author url: https://github.com/TakashiKakizoe1109
- * @version: 1.0.19
+ * @version: 1.0.20
  *
  * Open source under the MIT License.
  * License url: https://raw.githubusercontent.com/TakashiKakizoe1109/customFormValidation/master/LICENSE
@@ -397,8 +397,9 @@ customFormValidation.prototype.inputTextPattern = function(obj,errorView,allChec
   }
 
   /** error view */
-  target.parent().find('.'+op.correct+'.correct_pattern-'+group).remove();
-  target.parent().find('.'+op.error+'.error_pattern-'+group).remove();
+  console.log('.'+op.error+'.error_pattern-'+group);
+  $('.'+op.correct+'.correct_pattern-'+group).remove();
+  $('.'+op.error+'.error_pattern-'+group).remove();
   if (match) {
     if (op.addClassMode === true) {
       target.removeClass(op.classNamePatternError);
@@ -499,8 +500,8 @@ customFormValidation.prototype.inputTextNotSame = function(obj,errorView,allChec
   }
 
   /** errow view and result */
-  $(op.selector).find('.'+op.error+'.error_notsame-'+id).remove();
-  $(op.selector).find('.'+op.correct+'.correct_notsame-'+id).remove();
+  $('.'+op.error+'.error_notsame-'+id).remove();
+  $('.'+op.correct+'.correct_notsame-'+id).remove();
   if ( retypeTargetValue!='' || sameTargetValue!='' ) {
 
     if (retypeTargetValue===sameTargetValue) {
