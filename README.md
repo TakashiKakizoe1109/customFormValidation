@@ -312,6 +312,9 @@ Options
 Updates
 ===========
 
+#### Version 1.0.21
+Added "ckeditor required" && "validate-pattern not-duplication"
+
 #### Version 1.0.20
 bug fix .  
 
